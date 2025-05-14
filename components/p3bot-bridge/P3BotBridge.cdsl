@@ -1,0 +1,12 @@
+import "OmniRobot.idsl";
+
+Component P3BotBridge
+{
+    Communications
+    {
+        implements OmniRobot;
+    };
+    language Cpp11;
+
+};
+
