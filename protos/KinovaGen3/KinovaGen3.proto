@@ -1,14 +1,14 @@
 #VRML_SIM R2025a utf8
 # license: Apache License 2.0
 # license url: http://www.apache.org/licenses/LICENSE-2.0
-# This is a proto file for Webots for the GEN3URDFV12
+# This is a proto file for Webots for the KinovaGen3
 # Extracted from: /home/usuario/Desktop/GEN3_URDF_V12.urdf
 
-PROTO GEN3URDFV12 [
+PROTO KinovaGen3 [
   field  SFVec3f     translation     0 0 0
   field  SFRotation  rotation        0 0 1 0
-  field  SFString    name            "GEN3URDFV12"  # Is `Robot.name`.
-  field  SFString    controller      "void"         # Is `Robot.controller`.
+  field  SFString    name            "KinovaGen3"  # Is `Robot.name`.
+  field  SFString    controller      "<none>"         # Is `Robot.controller`.
   field  MFString    controllerArgs  []             # Is `Robot.controllerArgs`.
   field  SFString    customData      ""             # Is `Robot.customData`.
   field  SFBool      supervisor      FALSE          # Is `Robot.supervisor`.
@@ -33,7 +33,7 @@ PROTO GEN3URDFV12 [
           metalness 0
         }
         geometry DEF base_link Mesh {
-          url "kortex_description/arms/gen3/meshes/base_link.STL"
+          url "meshes/base_link.STL"
         }
       }
       HingeJoint {
@@ -62,7 +62,7 @@ PROTO GEN3URDFV12 [
                 metalness 0
               }
               geometry DEF Shoulder_Link Mesh {
-                url "kortex_description/arms/gen3/meshes/Shoulder_Link.STL"
+                url "meshes/shoulder_link.STL"
               }
             }
             HingeJoint {
@@ -93,7 +93,7 @@ PROTO GEN3URDFV12 [
                       metalness 0
                     }
                     geometry DEF HalfArm1_Link Mesh {
-                      url "kortex_description/arms/gen3/meshes/HalfArm1_Link.STL"
+                      url "meshes/half_arm_1_link.STL"
                     }
                   }
                   HingeJoint {
@@ -122,7 +122,7 @@ PROTO GEN3URDFV12 [
                             metalness 0
                           }
                           geometry DEF HalfArm2_Link Mesh {
-                            url "kortex_description/arms/gen3/meshes/HalfArm2_Link.STL"
+                            url "meshes/half_arm_2_link.STL"
                           }
                         }
                         HingeJoint {
@@ -153,7 +153,7 @@ PROTO GEN3URDFV12 [
                                   metalness 0
                                 }
                                 geometry DEF ForeArm_Link Mesh {
-                                  url "kortex_description/arms/gen3/meshes/ForeArm_Link.STL"
+                                  url "meshes/forearm_link.STL"
                                 }
                               }
                               HingeJoint {
@@ -182,7 +182,7 @@ PROTO GEN3URDFV12 [
                                         metalness 0
                                       }
                                       geometry DEF SphericalWrist1_Link Mesh {
-                                        url "kortex_description/arms/gen3/meshes/SphericalWrist1_Link.STL"
+                                        url "meshes/spherical_wrist_1_link.STL"
                                       }
                                     }
                                     HingeJoint {
@@ -213,7 +213,7 @@ PROTO GEN3URDFV12 [
                                               metalness 0
                                             }
                                             geometry DEF SphericalWrist2_Link Mesh {
-                                              url "kortex_description/arms/gen3/meshes/SphericalWrist2_Link.STL"
+                                              url "meshes/spherical_wrist_2_link.STL"
                                             }
                                           }
                                           HingeJoint {
@@ -242,7 +242,7 @@ PROTO GEN3URDFV12 [
                                                     metalness 0
                                                   }
                                                   geometry DEF Bracelet_Link Mesh {
-                                                    url "kortex_description/arms/gen3/meshes/Bracelet_Link.STL"
+                                                    url "meshes/bracelet_with_vision_link.STL"
                                                   }
                                                 }
                                               ]
