@@ -1,0 +1,315 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "KinovaGen3.proto"
+
+PROTO P3Bot [
+  field SFVec3f           translation     0 0 0.03         # Is `Pose.translation`.
+  field SFRotation        rotation        0 0 1 0       # Is `Pose.rotation`.
+  field SFString          name            "P3Bot"      # Is `Solid.name`.
+  field SFString          controller      "<extern>"      # Is `Robot.controller`.
+]
+{
+Robot {
+  translation IS translation
+  rotation IS rotation
+  name IS name
+  model "ROBOLAB P3Bot"
+  children [
+    Group {
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.870588 0.866667 0.854902
+            roughness 1
+            metalness 0.3
+          }
+          geometry Mesh {
+            url [
+              "./p3bot_meshes/p3bot_body.stl"
+            ]
+          }
+        }
+      ]
+    }
+    Group {
+      children [
+        DEF KINOVA_ARM_R KinovaGen3{
+          translation 0 -0.0517612 1.04883
+          rotation -1 0 0 -2.01
+        }
+        DEF KINOVA_ARM_L KinovaGen3{
+          translation 0.002 0.055 1.052
+          rotation -1 0 0 2.01
+        }
+        Group {
+          children [
+            Camera {
+              translation -0.18 0 1.34
+              rotation 0 0 1 -1.5707953071795862
+              name "camera_360_2"
+              fieldOfView 3.14
+              width 960
+              height 960
+              projection "cylindrical"
+            }
+            Camera {
+              translation -0.18 0 1.34
+              rotation 0 0 -1 -1.5708053071795867
+              name "camera_360_1"
+              fieldOfView 3.14
+              width 960
+              height 960
+              projection "cylindrical"
+            }
+          ]
+        }
+        Lidar {
+          translation -0.18 0 1.13
+          rotation 0 0 1 0.34
+          name "helios"
+          tiltAngle -0.34
+          horizontalResolution 900
+          fieldOfView 6.28
+          verticalFieldOfView 3.141592653589793
+          numberOfLayers 82
+          maxRange 8
+          noise 0.005
+          defaultFrequency 20
+        }
+        Accelerometer {
+          resolution 0.001
+        }
+      ]
+    }
+    DEF WHEEL1 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 4267.336797181569
+        axis 0 1 0
+        anchor 0.1 -0.21 0.045
+      }
+      device [
+        RotationalMotor {
+          name "wheel1"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel1sensor"
+        }
+      ]
+      endPoint DEF WHEEL_SOLID Solid {
+        translation 0.1 -0.21 0.045
+        rotation 1 0 0 -1.5708
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+            url [
+              "./p3bot_meshes/DifferentialWheel.dae"
+            ]
+            }
+          }
+        ]
+        name "wheel1"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.072
+              radius 0.1
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL2 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 3891.269310057118
+        axis 0 1 0
+        anchor 0.1 0.21 0.045
+      }
+      device [
+        RotationalMotor {
+          name "wheel2"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel2sensor"
+        }
+      ]
+      endPoint DEF WHEEL_SOLID Solid {
+        translation 0.1 0.21 0.045
+        rotation 1 0 0 -1.5708
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+            url [
+              "./p3bot_meshes/DifferentialWheel.dae"
+            ]
+            }
+          }
+        ]
+        name "wheel2"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.072
+              radius 0.1
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL3 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 4572.162309315833
+        axis 0 1 0
+        anchor -0.16 -0.21 0.045
+      }
+      device [
+        RotationalMotor {
+          name "wheel3"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel3sensor"
+        }
+      ]
+      endPoint DEF WHEEL_SOLID Solid {
+        translation -0.16 -0.21 0.045
+        rotation 1 0 0 -1.5708
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+            url [
+              "./p3bot_meshes/DifferentialWheel.dae"
+            ]
+            }
+          }
+        ]
+        name "wheel3"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.072
+              radius 0.1
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL4 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 3547.2084206986005
+        axis 0 1 0
+        anchor -0.16 0.21 0.045
+      }
+      device [
+        RotationalMotor {
+          name "wheel4"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel4sensor"
+        }
+      ]
+      endPoint DEF WHEEL_SOLID Solid {
+        translation -0.16 0.21 0.045
+        rotation 1 0 0 -1.5708
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+            url [
+              "./p3bot_meshes/DifferentialWheel.dae"
+            ]
+            }
+          }
+        ]
+        name "wheel4"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.072
+              radius 0.1
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+  ]
+  name "P3Bot"
+  description "ROBOLAB P3Bot"
+  boundingObject Group {
+    children [
+      Pose {
+        translation -0.009 0 0.37
+        children [
+          Box {
+            size 0.46 0.44 0.71
+          }
+        ]
+      }
+      Pose {
+        translation -0.19 0 1.03
+        children [
+          Box {
+            size 0.1 0.42 0.61
+          }
+        ]
+      }
+    ]
+  }
+  physics Physics {
+    density -1
+    mass 22
+    centerOfMass [
+      0 0 -0.045
+    ]
+    inertiaMatrix [
+      0.166204 0.418086 0.55459
+      0 0 0
+    ]
+  }
+  controller IS controller
+  supervisor TRUE
+  linearVelocity 2.5768635962415814e-15 -4.075325935301325e-16 0
+  angularVelocity 3.318708717389001e-16 -7.061550565025133e-16 3.5130543371496327e-15
+  }
+}
