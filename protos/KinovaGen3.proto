@@ -3,6 +3,7 @@
 # license url: http://www.apache.org/licenses/LICENSE-2.0
 # This is a proto file for Webots for the KinovaGen3
 # Extracted from: /home/usuario/Desktop/GEN3_URDF_V12.urdf
+# template language: javascript
 
 PROTO KinovaGen3 [
   field  SFVec3f     translation     0 0 0
@@ -14,6 +15,7 @@ PROTO KinovaGen3 [
   field  SFBool      supervisor      FALSE          # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE           # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE          # Is `Robot.selfCollision`.
+  field  SFBool      invertWrist     FALSE
 ]
 {
   Robot {
@@ -173,7 +175,11 @@ PROTO KinovaGen3 [
                                 ]
                                 endPoint Solid {
                                   translation 0.000000 -0.208430 -0.006375
-                                  rotation -1.000000 0.000000 0.000000 1.570800
+                                  %< if (fields.invertWrist.value) { >%
+                                      rotation -6.781012696521093e-09 0.7071062811861719 0.7071072811865696 3.14159
+                                  %< } else { >%
+                                      rotation -1.000000 0.000000 0.000000 1.570800
+                                  %< } >%
                                   children [
                                     Shape {
                                       appearance DEF SphericalWrist1_Link_material PBRAppearance {

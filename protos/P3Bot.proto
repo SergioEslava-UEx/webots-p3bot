@@ -3,11 +3,66 @@
 EXTERNPROTO "KinovaGen3.proto"
 
 PROTO P3Bot [
-  field SFVec3f           translation     0 0 0.03         # Is `Pose.translation`.
-  field SFRotation        rotation        0 0 1 0       # Is `Pose.rotation`.
-  field SFString          name            "P3Bot"      # Is `Solid.name`.
+  field SFVec3f           translation     0 0 0.03        # Is `Pose.translation`.
+  field SFRotation        rotation        0 0 1 0         # Is `Pose.rotation`.
+  field SFString          name            "P3Bot"         # Is `Solid.name`.
   field SFString          controller      "<extern>"      # Is `Robot.controller`.
-]
+  field MFNode            arms            
+  [
+    DEF KINOVA_ARM_R KinovaGen3{
+      name "kinova_arm_r"
+      translation 0 -0.0517612 1.04883
+      rotation -1 0 0 -2.01
+    }
+    DEF KINOVA_ARM_L KinovaGen3{
+      invertWrist TRUE
+      name "kinova_arm_l"
+      translation 0.002 0.055 1.052
+      rotation -1 0 0 2.01
+    }
+  ] # Is `Robot.children.GROUP_ARMS.children`.     
+  field MFNode            sensors         
+  [
+    DEF CAMERA_360 Group {
+      children [
+        Camera {
+          translation -0.18 0 1.34
+          rotation 0 0 1 -1.5707953071795862
+          name "camera_360_2"
+          fieldOfView 3.14
+          width 960
+          height 960
+          projection "cylindrical"
+        }
+        Camera {
+          translation -0.18 0 1.34
+          rotation 0 0 -1 -1.5708053071795867
+          name "camera_360_1"
+          fieldOfView 3.14
+          width 960
+          height 960
+          projection "cylindrical"
+        }
+      ]
+    }
+    Lidar {
+      translation -0.18 0 1.13
+      rotation 0 0 1 0.34
+      name "helios"
+      tiltAngle -0.34
+      horizontalResolution 900
+      fieldOfView 6.28
+      verticalFieldOfView 3.141592653589793
+      numberOfLayers 82
+      maxRange 8
+      noise 0.005
+      defaultFrequency 20
+    }
+    Accelerometer {
+      resolution 0.001
+    }
+  ] # Is `Robot.children.GROUP_Sensors.children`. 
+] 
 {
 Robot {
   translation IS translation
@@ -15,72 +70,20 @@ Robot {
   name IS name
   model "ROBOLAB P3Bot"
   children [
-    Group {
-      children [
-        Shape {
-          appearance PBRAppearance {
-            baseColor 0.870588 0.866667 0.854902
-            roughness 1
-            metalness 0.3
-          }
-          geometry Mesh {
-            url [
-              "./p3bot_meshes/p3bot_body.stl"
-            ]
-          }
-        }
-      ]
+    DEF GROUP_ARMS Group { children IS arms }
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.870588 0.866667 0.854902
+        roughness 1
+        metalness 0.3
+      }
+      geometry Mesh {
+        url [
+          "./p3bot_meshes/p3bot_body.stl"
+        ]
+      }
     }
-    Group {
-      children [
-        DEF KINOVA_ARM_R KinovaGen3{
-          translation 0 -0.0517612 1.04883
-          rotation -1 0 0 -2.01
-        }
-        DEF KINOVA_ARM_L KinovaGen3{
-          translation 0.002 0.055 1.052
-          rotation -1 0 0 2.01
-        }
-        Group {
-          children [
-            Camera {
-              translation -0.18 0 1.34
-              rotation 0 0 1 -1.5707953071795862
-              name "camera_360_2"
-              fieldOfView 3.14
-              width 960
-              height 960
-              projection "cylindrical"
-            }
-            Camera {
-              translation -0.18 0 1.34
-              rotation 0 0 -1 -1.5708053071795867
-              name "camera_360_1"
-              fieldOfView 3.14
-              width 960
-              height 960
-              projection "cylindrical"
-            }
-          ]
-        }
-        Lidar {
-          translation -0.18 0 1.13
-          rotation 0 0 1 0.34
-          name "helios"
-          tiltAngle -0.34
-          horizontalResolution 900
-          fieldOfView 6.28
-          verticalFieldOfView 3.141592653589793
-          numberOfLayers 82
-          maxRange 8
-          noise 0.005
-          defaultFrequency 20
-        }
-        Accelerometer {
-          resolution 0.001
-        }
-      ]
-    }
+    DEF GROUP_SENSORS Group { children IS sensors }
     DEF WHEEL1 HingeJoint {
       jointParameters HingeJointParameters {
         position 4267.336797181569
