@@ -18,20 +18,47 @@
  */
 
 /**
-	\brief
-	@author authorname
+	\brief Bridge component that connects Webots with Robocomp for P3Bot Robot
+	@author Robolab Group | Sergio Eslava & Alejandro Torrejón & Jorge Castellón
 */
-
-
-
 #ifndef SPECIFICWORKER_H
 #define SPECIFICWORKER_H
-
 
 // If you want to reduce the period automatically due to lack of use, you must uncomment the following line
 //#define HIBERNATION_ENABLED
 
+//##################################
+//##################################
+//#########   INCLUDES   ###########
+//##################################
+//##################################
 #include <genericworker.h>
+#include <webots/Robot.hpp>
+#include <webots/Node.hpp>
+#include <webots/Motor.hpp>
+#include <webots/Supervisor.hpp>
+#include <webots/PositionSensor.hpp>
+
+#include <fps/fps.h>
+
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+
+
+//##################################
+//##################################
+//#####   OTHER DEFINITIONS   ######
+//##################################
+//##################################
+using namespace std;
+using namespace Eigen;
+
+#define TIME_STEP 33
+// robot geometry
+#define WHEEL_RADIUS 0.05
+#define LX 0.135  // longitudinal distance from robot's COM to wheel [m].
+#define LY 0.237  // lateral distance from robot's COM to wheel [m].
+
 
 
 /**
@@ -54,8 +81,13 @@ public:
      */
 	~SpecificWorker();
 
+    void receiving_robotSpeed(webots::Supervisor* _robot, double timestamp);
+    double generate_noise(double stddev);
 
-	void OmniRobot_correctOdometer(int x, int z, float alpha);
+    // #######################
+    // # OMNIROBOT interface #
+    // #######################
+    void OmniRobot_correctOdometer(int x, int z, float alpha);
 	void OmniRobot_getBasePose(int &x, int &z, float &alpha);
 	void OmniRobot_getBaseState(RoboCompGenericBase::TBaseState &state);
 	void OmniRobot_resetOdometer();
@@ -94,11 +126,20 @@ public slots:
 	int startup_check();
 
 private:
-
-	/**
+    /**
      * \brief Flag indicating whether startup checks are enabled.
      */
 	bool startup_check_flag;
+
+    /**
+     * Variables to store webots types and elements
+     */
+    webots::Node* robotNode;
+    webots::Supervisor* robot;
+    webots::Motor* motors[4];
+    webots::PositionSensor* positionSensors[4];
+
+    void printNotImplementedWarningMessage(const string functionName);
 
 signals:
 	//void customSignal();
