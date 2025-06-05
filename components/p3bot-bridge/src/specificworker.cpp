@@ -132,6 +132,12 @@ void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double tim
     const double* shadow_velocity = robotNode->getVelocity();
     float orientation = atan2(shadow_orientation[1], shadow_orientation[0]) - M_PI_2;
 
+    m_wheels << -1.0,  1.0,  l_sum_div_r,
+                1.0,  1.0, -l_sum_div_r,
+                1.0,  1.0,  l_sum_div_r,
+                -1.0,  1.0, -l_sum_div_r;
+    m_wheels = m_wheels/WHEEL_RADIUS;
+
     Eigen::Matrix2f rt_rotation_matrix;
     rt_rotation_matrix << cos(orientation), -sin(orientation),
             sin(orientation), cos(orientation);
@@ -220,14 +226,12 @@ void SpecificWorker::OmniRobot_setSpeedBase(float advx, float advz, float rot)
     advz *= 0.001;
     advx *= 0.001;
 
-    speeds[0] = 1.0 / WHEEL_RADIUS * (advz + advx + (LX + LY) * rot);
-    speeds[1] = 1.0 / WHEEL_RADIUS * (advz - advx - (LX + LY) * rot);
-    speeds[2] = 1.0 / WHEEL_RADIUS * (advz - advx + (LX + LY) * rot);
-    speeds[3] = 1.0 / WHEEL_RADIUS * (advz + advx - (LX + LY) * rot);
+    Eigen::Vector3d input_speeds(advx, advz, rot);
+    Eigen::Vector4d wheel_speeds = m_wheels * input_speeds;
     printf("Speeds: vx=%.2f[m/s] vy=%.2f[m/s] ω=%.2f[rad/s]\n", advx, advz, rot);
     for (int i = 0; i < 4; i++)
     {
-        motors[i]->setVelocity(speeds[i]);
+        motors[i]->setVelocity(wheel_speeds[i]);
     }
 }
 

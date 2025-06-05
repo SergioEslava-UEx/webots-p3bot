@@ -38,7 +38,6 @@
 #include <webots/Motor.hpp>
 #include <webots/Supervisor.hpp>
 #include <webots/PositionSensor.hpp>
-
 #include <fps/fps.h>
 
 #include <Eigen/Dense>
@@ -55,9 +54,9 @@ using namespace Eigen;
 
 #define TIME_STEP 33
 // robot geometry
-#define WHEEL_RADIUS 0.05
-#define LX 0.135  // longitudinal distance from robot's COM to wheel [m].
-#define LY 0.237  // lateral distance from robot's COM to wheel [m].
+#define WHEEL_RADIUS 0.08
+#define LX 0.270  // longitudinal distance from robot's COM to wheel [m].
+#define LY 0.475  // lateral distance from robot's COM to wheel [m].
 
 
 
@@ -138,6 +137,9 @@ private:
     webots::Supervisor* robot;
     webots::Motor* motors[4];
     webots::PositionSensor* positionSensors[4];
+
+	const double l_sum_div_r = (LX + LY);
+	Eigen::Matrix<double, 4, 3> m_wheels;
 
     void printNotImplementedWarningMessage(const string functionName);
 
