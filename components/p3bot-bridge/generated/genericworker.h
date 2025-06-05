@@ -32,12 +32,14 @@
 #include <unordered_map>
 
 
+#include <FullPoseEstimation.h>
+#include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
 #include <OmniRobot.h>
 
 #define BASIC_PERIOD 100
 
-using TuplePrx = std::tuple<>;
+using TuplePrx = std::tuple<RoboCompFullPoseEstimationPub::FullPoseEstimationPubPrxPtr>;
 
 
 class GenericWorker : public QObject
@@ -56,6 +58,7 @@ public:
 	std::atomic_bool hibernation = false;
 
 
+	RoboCompFullPoseEstimationPub::FullPoseEstimationPubPrxPtr fullposeestimationpub_pubproxy;
 
 	virtual void OmniRobot_correctOdometer(int x, int z, float alpha) = 0;
 	virtual void OmniRobot_getBasePose(int &x, int &z, float &alpha) = 0;
@@ -65,6 +68,7 @@ public:
 	virtual void OmniRobot_setOdometerPose(int x, int z, float alpha) = 0;
 	virtual void OmniRobot_setSpeedBase(float advx, float advz, float rot) = 0;
 	virtual void OmniRobot_stopBase() = 0;
+
 
 protected:
 	std::unordered_map<std::string, std::unique_ptr<GRAFCETStep>> states;
@@ -81,6 +85,7 @@ public slots:
 	virtual void emergency() = 0;
 	virtual void restore() = 0;
 	void hibernationCheck();
+	void hibernationTick();
 	
 signals:
 	void kill();

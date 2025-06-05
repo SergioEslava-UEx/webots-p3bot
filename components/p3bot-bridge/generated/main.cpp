@@ -79,12 +79,81 @@
 
 #include <omnirobotI.h>
 
+#include <FullPoseEstimation.h>
+#include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
+#include <OmniRobot.h>
 
 //#define USE_QTGUI
 
 #define PROGRAM_NAME    "P3BotBridge"
 #define SERVER_FULL_NAME   "RoboComp P3BotBridge::P3BotBridge"
+
+
+template <typename InterfaceType>
+void implement( const Ice::CommunicatorPtr& communicator,
+                const std::string& endpointConfig,
+                const std::string& adapterName,
+                SpecificWorker* worker,
+                int index)
+{
+    try
+    {
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints(adapterName, endpointConfig);
+        auto servant = std::make_shared<InterfaceType>(worker, index);
+        adapter->add(servant, Ice::stringToIdentity(adapterName));
+        adapter->activate();
+        std::cout << "[" << PROGRAM_NAME << "]: " << adapterName << " adapter created in port " << endpointConfig << std::endl;
+    }
+    catch (const IceStorm::TopicExists&)
+    {
+        std::cout << "[" << PROGRAM_NAME << "]: ERROR creating or activating adapter for " << adapterName << std::endl;
+    }
+}
+
+template <typename PubProxyType, typename PubProxyPointer>
+void publish(const IceStorm::TopicManagerPrxPtr& topicManager,
+             std::string name_topic,
+             const std::string& topicBaseName,
+             PubProxyPointer& pubProxy,
+             const std::string& programName)
+{
+    if (!name_topic.empty()) name_topic += "/";
+    name_topic += topicBaseName;
+
+    std::cout << "[\033[1;36m" << programName << "\033[0m]: \033[32mINFO\033[0m Topic: " 
+              << name_topic << " will be used for publication. \033[0m\n";
+
+    std::shared_ptr<IceStorm::TopicPrx> topic;
+    while (!topic)
+    {
+        try
+        {
+            topic = topicManager->retrieve(name_topic);
+        }
+        catch (const IceStorm::NoSuchTopic&)
+        {
+            std::cout << "\n\n[\033[1;36m" << programName << "\033[0m]: \033[1;33mWARNING\033[0m " 
+                      << name_topic << " topic did not create. \033[32mCreating...\033[0m\n\n";
+            try
+            {
+                topic = topicManager->create(name_topic);
+            }
+            catch (const IceStorm::TopicExists&)
+            {
+                std::cout << "[\033[31m" << programName << "\033[0m]: \033[1;33mWARNING\033[0m publishing the " 
+                          << name_topic << " topic. It's possible that other component have created\n";
+            }
+        }
+        catch(const IceUtil::NullHandleException&)
+        {
+            std::cout << "[\033[31m" << programName << "\033[0m]: \033[31mERROR\033[0m TopicManager is Null.\n";
+            throw;
+        }
+    }
+    auto publisher = topic->getPublisher()->ice_oneway();
+    pubProxy = Ice::uncheckedCast<PubProxyType>(publisher);
+}
 
 
 class P3BotBridge : public Ice::Application
@@ -95,8 +164,7 @@ public:
 		this->prefix = prfx.toStdString();
 		this->startup_check_flag=startup_check; 
 
-		this->configLoader.load(this->configFile);
-		this->configLoader.printConfig();
+		initialize();
 		}
 
 	Ice::InitializationData getInitializationDataIce();
@@ -126,6 +194,7 @@ void P3BotBridge::initialize()
 {
     this->configLoader.load(this->configFile);
 	this->configLoader.printConfig();
+	std::cout<<std::endl;
 }
 
 int P3BotBridge::run(int argc, char* argv[])
@@ -151,31 +220,48 @@ int P3BotBridge::run(int argc, char* argv[])
 
 	int status=EXIT_SUCCESS;
 
+	RoboCompFullPoseEstimationPub::FullPoseEstimationPubPrxPtr fullposeestimationpub_proxy;
 
-	std::string proxy, tmp;
-	initialize();
 
-	tprx = std::tuple<>();
+	//Require code
+
+	//Topic Manager code
+
+	IceStorm::TopicManagerPrxPtr topicManager;
+	try
+	{
+		topicManager = Ice::checkedCast<IceStorm::TopicManagerPrx>(communicator()->stringToProxy(configLoader.get<std::string>("Proxies.TopicManager")));
+		if (!topicManager)
+		{
+		    std::cout << "[" << PROGRAM_NAME << "]: TopicManager.Proxy not defined in config file."<<std::endl;
+		    std::cout << "	 Config line example: TopicManager.Proxy=IceStorm/TopicManager:default -p 9999"<<std::endl;
+	        return EXIT_FAILURE;
+		}
+	}
+	catch (const Ice::Exception &ex)
+	{
+		std::cout << "[" << PROGRAM_NAME << "]: Exception: 'rcnode' not running: " << ex << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	//Publish code
+	publish<RoboCompFullPoseEstimationPub::FullPoseEstimationPubPrx, RoboCompFullPoseEstimationPub::FullPoseEstimationPubPrxPtr>(topicManager,
+	                    configLoader.get<std::string>("Proxies.FullPoseEstimationPubPrefix"),
+	                    "FullPoseEstimationPub", fullposeestimationpub_proxy, PROGRAM_NAME);
+
+	tprx = std::make_tuple(fullposeestimationpub_proxy);
 	SpecificWorker *worker = new SpecificWorker(this->configLoader, tprx, startup_check_flag);
 	QObject::connect(worker, SIGNAL(kill()), &a, SLOT(quit()));
 
 	try
 	{
 
-		try
-		{
-			// Server adapter creation and publication
-		    tmp = configLoader.get<std::string>("Endpoints.OmniRobot");
-		    Ice::ObjectAdapterPtr adapterOmniRobot = communicator()->createObjectAdapterWithEndpoints("OmniRobot", tmp);
-			auto omnirobot = std::make_shared<OmniRobotI>(worker);
-			adapterOmniRobot->add(omnirobot, Ice::stringToIdentity("omnirobot"));
-			adapterOmniRobot->activate();
-			std::cout << "[" << PROGRAM_NAME << "]: OmniRobot adapter created in port " << tmp << std::endl;
-		}
-		catch (const IceStorm::TopicExists&){
-			std::cout << "[" << PROGRAM_NAME << "]: ERROR creating or activating adapter for OmniRobot\n";
-		}
+		//Implement code
+		implement<OmniRobotI>(communicator(),
+		                    configLoader.get<std::string>("Endpoints.OmniRobot"), 
+		                    "OmniRobot", worker,  0);
 
+		//Subscribe code
 
 		// Server adapter creation and publication
 		std::cout << SERVER_FULL_NAME " started" << std::endl;
