@@ -120,8 +120,8 @@ Robot {
         boundingObject Pose {
           children [
             Cylinder {
-              height 0.08
-              radius 0.1
+              height 0.04
+              radius 0.08
               subdivision 24
             }
           ]
@@ -168,8 +168,8 @@ Robot {
         boundingObject Pose {
           children [
             Cylinder {
-              height 0.08
-              radius 0.1
+              height 0.04
+              radius 0.08
               subdivision 24
             }
           ]
@@ -216,8 +216,8 @@ Robot {
         boundingObject Pose {
           children [
             Cylinder {
-              height 0.08
-              radius 0.1
+              height 0.04
+              radius 0.08
               subdivision 24
             }
           ]
@@ -264,8 +264,8 @@ Robot {
         boundingObject Pose {
           children [
             Cylinder {
-              height 0.08
-              radius 0.1
+              height 0.04
+              radius 0.08
               subdivision 24
             }
           ]
@@ -279,24 +279,9 @@ Robot {
   ]
   name "P3Bot"
   description "ROBOLAB P3Bot"
-  boundingObject Group {
-    children [
-      Pose {
-        translation -0.009 0 0.37
-        children [
-          Box {
-            size 0.46 0.44 0.71
-          }
-        ]
-      }
-      Pose {
-        translation -0.19 0 1.03
-        children [
-          Box {
-            size 0.1 0.42 0.61
-          }
-        ]
-      }
+  boundingObject Mesh {
+    url [
+      "./p3bot_meshes/p3bot_body_collision.stl"
     ]
   }
   physics Physics {
