@@ -120,7 +120,7 @@ Robot {
         boundingObject Pose {
           children [
             Cylinder {
-              height 0.072
+              height 0.08
               radius 0.1
               subdivision 24
             }
@@ -168,7 +168,7 @@ Robot {
         boundingObject Pose {
           children [
             Cylinder {
-              height 0.072
+              height 0.08
               radius 0.1
               subdivision 24
             }
@@ -216,7 +216,7 @@ Robot {
         boundingObject Pose {
           children [
             Cylinder {
-              height 0.072
+              height 0.08
               radius 0.1
               subdivision 24
             }
@@ -264,7 +264,7 @@ Robot {
         boundingObject Pose {
           children [
             Cylinder {
-              height 0.072
+              height 0.08
               radius 0.1
               subdivision 24
             }

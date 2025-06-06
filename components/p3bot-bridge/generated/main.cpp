@@ -223,8 +223,6 @@ int P3BotBridge::run(int argc, char* argv[])
 	RoboCompFullPoseEstimationPub::FullPoseEstimationPubPrxPtr fullposeestimationpub_proxy;
 
 
-	//Require code
-
 	//Topic Manager code
 
 	IceStorm::TopicManagerPrxPtr topicManager;
@@ -259,9 +257,7 @@ int P3BotBridge::run(int argc, char* argv[])
 		//Implement code
 		implement<OmniRobotI>(communicator(),
 		                    configLoader.get<std::string>("Endpoints.OmniRobot"), 
-		                    "OmniRobot", worker,  0);
-
-		//Subscribe code
+		                    "omnirobot", worker,  0);
 
 		// Server adapter creation and publication
 		std::cout << SERVER_FULL_NAME " started" << std::endl;
