@@ -100,8 +100,8 @@ Robot {
         }
       ]
       endPoint DEF WHEEL_SOLID Solid {
-        translation 0.1 -0.21 0.045
-        rotation 1 0 0 -1.5708
+        translation 0.126 -0.21 0.075
+        rotation 1.0551204195739342e-06 0.7071052811839664 -0.7071082811851593 3.14159
         children [
           Shape {
             appearance PBRAppearance {
@@ -110,7 +110,7 @@ Robot {
             }
             geometry Mesh {
             url [
-              "./p3bot_meshes/DifferentialWheel.dae"
+              "./p3bot_meshes/omnidirectional_wheel.stl"
             ]
             }
           }
@@ -148,7 +148,7 @@ Robot {
         }
       ]
       endPoint DEF WHEEL_SOLID Solid {
-        translation 0.1 0.21 0.045
+        translation 0.127 0.21 0.075
         rotation 1 0 0 -1.5708
         children [
           Shape {
@@ -158,7 +158,7 @@ Robot {
             }
             geometry Mesh {
             url [
-              "./p3bot_meshes/DifferentialWheel.dae"
+              "./p3bot_meshes/omnidirectional_wheel.stl"
             ]
             }
           }
@@ -196,8 +196,8 @@ Robot {
         }
       ]
       endPoint DEF WHEEL_SOLID Solid {
-        translation -0.16 -0.21 0.045
-        rotation 1 0 0 -1.5708
+        translation -0.126 -0.21 0.075
+        rotation -1.1255204475687723e-06 0.7071052811839121 -0.707108281185105 3.14159
         children [
           Shape {
             appearance PBRAppearance {
@@ -206,7 +206,7 @@ Robot {
             }
             geometry Mesh {
             url [
-              "./p3bot_meshes/DifferentialWheel.dae"
+              "./p3bot_meshes/omnidirectional_wheel.stl"
             ]
             }
           }
@@ -244,7 +244,7 @@ Robot {
         }
       ]
       endPoint DEF WHEEL_SOLID Solid {
-        translation -0.16 0.21 0.045
+        translation -0.126 0.21 0.075
         rotation 1 0 0 -1.5708
         children [
           Shape {
@@ -254,7 +254,7 @@ Robot {
             }
             geometry Mesh {
             url [
-              "./p3bot_meshes/DifferentialWheel.dae"
+              "./p3bot_meshes/omnidirectional_wheel.stl"
             ]
             }
           }
