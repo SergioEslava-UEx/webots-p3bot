@@ -159,8 +159,8 @@ void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double tim
     RoboCompFullPoseEstimation::FullPoseEuler pose_data;
 
     // Posición
-    pose_data.x = shadow_position[0];  // metros → mm
-    pose_data.y = shadow_position[1];
+    pose_data.x = -shadow_position[1];  // metros → mm
+    pose_data.y = shadow_position[0];
     pose_data.z = shadow_position[2];
 
     // Orientación (Euler en radianes) 2D
