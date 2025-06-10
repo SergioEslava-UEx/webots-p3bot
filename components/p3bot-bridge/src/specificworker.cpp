@@ -40,11 +40,10 @@ SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, 
 			throw error;
 		}
 
-        wheelsMatrix << -1.0,  1.0,  halfSumLxLyOverRadius,
-                1.0,  1.0, -halfSumLxLyOverRadius,
-                1.0,  1.0,  halfSumLxLyOverRadius,
-                -1.0,  1.0, -halfSumLxLyOverRadius;
-        wheelsMatrix = wheelsMatrix / WHEEL_RADIUS;
+        wheelsMatrix << -1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS,  halfSumLxLyOverRadius,
+                        1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS, halfSumLxLyOverRadius,
+                        1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS, halfSumLxLyOverRadius,
+                        -1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS,  halfSumLxLyOverRadius;
 	}
 }
 
@@ -198,8 +197,6 @@ void SpecificWorker::OmniRobot_setOdometerPose(int x, int z, float alpha)
 
 void SpecificWorker::OmniRobot_setSpeedBase(float advx, float advz, float rot)
 {
-    double speeds[4];
-
     advz *= 0.001;
     advx *= 0.001;
 
