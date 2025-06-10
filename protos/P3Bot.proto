@@ -61,29 +61,9 @@ PROTO P3Bot [
     Accelerometer {
       resolution 0.001
     }
-  ] # Is `Robot.children.GROUP_Sensors.children`. 
-] 
-{
-Robot {
-  translation IS translation
-  rotation IS rotation
-  name IS name
-  model "ROBOLAB P3Bot"
-  children [
-    DEF GROUP_ARMS Group { children IS arms }
-    Shape {
-      appearance PBRAppearance {
-        baseColor 0.870588 0.866667 0.854902
-        roughness 1
-        metalness 0.3
-      }
-      geometry Mesh {
-        url [
-          "./p3bot_meshes/p3bot_body.stl"
-        ]
-      }
-    }
-    DEF GROUP_SENSORS Group { children IS sensors }
+  ] # Is `Robot.children.GROUP_SENSORS.children`. 
+  field MFNode            wheels
+  [
     DEF WHEEL1 HingeJoint {
       jointParameters HingeJointParameters {
         position 4267.336797181569
@@ -274,6 +254,30 @@ Robot {
           density -1
           mass 0.4
         }
+      }
+    }
+  ] # Is `Robot.children.GROUP_WHEELS.children
+] 
+{
+Robot {
+  translation IS translation
+  rotation IS rotation
+  name IS name
+  model "ROBOLAB P3Bot"
+  children [
+    DEF GROUP_ARMS Group { children IS arms }
+    DEF GROUP_SENSORS Group { children IS sensors }
+    DEF GROUP_WHEELS Group { children IS wheels }
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.870588 0.866667 0.854902
+        roughness 1
+        metalness 0.3
+      }
+      geometry Mesh {
+        url [
+          "./p3bot_meshes/p3bot_body.stl"
+        ]
       }
     }
   ]

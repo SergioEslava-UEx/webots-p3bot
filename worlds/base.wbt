@@ -7,10 +7,39 @@ EXTERNPROTO "../protos/P3Bot.proto"
 EXTERNPROTO "../protos/KinovaGen3.proto"
 
 WorldInfo {
+  info [
+    "Simulation of the ROBOLAB P3Bot robot."
+  ]
+  title "ROBOLAB P3Bot"
+  basicTimeStep 16
+  contactProperties [
+    ContactProperties {
+      material1 "InteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation -0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+    ContactProperties {
+      material1 "ExteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation 0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+  ]
 }
 Viewpoint {
-  orientation 0.14485655912435952 -0.04951341119241546 -0.9882130334046105 3.1391797681020988
-  position 4.759585895049374 0.06800884179300895 1.7700336594665744
+  orientation -0.2702231152547185 -0.283545197362322 -0.9200986844001012 1.9258272517580988
+  position 0.21758253928439217 0.5873137825846159 -0.4277361820758656
 }
 TexturedBackground {
 }
@@ -20,6 +49,8 @@ RectangleArena {
   floorSize 3 3
 }
 P3Bot {
+  hidden linearVelocity_0 2.5768635962415814e-15 -4.075325935301325e-16 0
+  hidden angularVelocity_0 3.318708717389001e-16 -7.061550565025133e-16 3.5130543371496327e-15
   arms [
     DEF KINOVA_ARM_R KinovaGen3 {
       translation 0 -0.0517612 1.04883
@@ -37,4 +68,249 @@ P3Bot {
       invertWrist TRUE
     }
   ]
+  wheels [
+    DEF WHEEL1 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 6
+        axis 0 1 0
+      }
+      device [
+        RotationalMotor {
+          name "wheel1"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel1sensor"
+        }
+      ]
+      endPoint DEF WHEEL_SOLID Solid {
+        translation 0.06027786852165294 -0.20999999999999994 0.10338834013853801
+        rotation 0.4876581152941626 0.6173273432952409 -0.6173301497641154 2.234144729373994
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "./p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel1"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL2 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 3891.269310057118
+        axis 0 1 0
+        anchor 0.1 0.21 0.045
+      }
+      device [
+        RotationalMotor {
+          name "wheel2"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel2sensor"
+        }
+      ]
+      endPoint DEF WHEEL_SOLID Solid {
+        translation 0.127 0.21 0.075
+        rotation 1 0 0 -1.5708
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "./p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel2"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL3 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 4572.162309315833
+        axis 0 1 0
+        anchor -0.16 -0.21 0.045
+      }
+      device [
+        RotationalMotor {
+          name "wheel3"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel3sensor"
+        }
+      ]
+      endPoint DEF WHEEL_SOLID Solid {
+        translation -0.126 -0.21 0.075
+        rotation -1.1255204475687723e-06 0.7071052811839121 -0.707108281185105 3.14159
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "./p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel3"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL4 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 3547.2084206986005
+        axis 0 1 0
+        anchor -0.16 0.21 0.045
+      }
+      device [
+        RotationalMotor {
+          name "wheel4"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel4sensor"
+        }
+      ]
+      endPoint DEF WHEEL_SOLID Solid {
+        translation -0.126 0.21 0.075
+        rotation 1 0 0 -1.5708
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "./p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel4"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+  ]
+}
+Robot {
+  rotation 1 0 0 1.5708
+  children [
+    DEF WHEEL1 HingeJoint {
+      jointParameters HingeJointParameters {
+        position -50
+        axis 0 0 1
+      }
+      device [
+        RotationalMotor {
+          name "wheel1"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel1sensor"
+        }
+      ]
+      endPoint DEF WHEEL_PRUEBA Solid {
+        rotation 0 0 1 0.26548245743669197
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "../protos/p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel1"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+  ]
+  name "Prueba"
 }
