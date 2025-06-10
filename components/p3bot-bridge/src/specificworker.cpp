@@ -30,22 +30,6 @@ SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, 
 		#ifdef HIBERNATION_ENABLED
 			hibernationChecker.start(500);
 		#endif
-		
-		// Example statemachine:
-		/***
-		//Your definition for the statesmachine (if you dont want use a execute function, use nullptr)
-		states["CustomState"] = std::make_unique<GRAFCETStep>("CustomState", period, 
-															std::bind(&SpecificWorker::customLoop, this),  // Cyclic function
-															std::bind(&SpecificWorker::customEnter, this), // On-enter function
-															std::bind(&SpecificWorker::customExit, this)); // On-exit function
-
-		//Add your definition of transitions (addTransition(originOfSignal, signal, dstState))
-		states["CustomState"]->addTransition(states["CustomState"].get(), SIGNAL(entered()), states["OtherState"].get());
-		states["Compute"]->addTransition(this, SIGNAL(customSignal()), states["CustomState"].get()); //Define your signal in the .h file under the "Signals" section.
-
-		//Add your custom state
-		statemachine.addState(states["CustomState"].get());
-		***/
 
 		statemachine.setChildMode(QState::ExclusiveStates);
 		statemachine.start();
@@ -55,6 +39,12 @@ SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, 
 			qWarning() << error;
 			throw error;
 		}
+
+        wheelsMatrix << -1.0,  1.0,  halfSumLxLyOverRadius,
+                1.0,  1.0, -halfSumLxLyOverRadius,
+                1.0,  1.0,  halfSumLxLyOverRadius,
+                -1.0,  1.0, -halfSumLxLyOverRadius;
+        wheelsMatrix = wheelsMatrix / WHEEL_RADIUS;
 	}
 }
 
@@ -79,7 +69,7 @@ void SpecificWorker::initialize()
         motors[i] = robot->getMotor(motorNames[i]);
         positionSensors[i] = motors[i]->getPositionSensor();
         positionSensors[i]->enable(this->getPeriod("Compute"));
-        motors[i]->setPosition(INFINITY); // Modo de velocidad.
+        motors[i]->setPosition(INFINITY); // Speed Mode
         motors[i]->setVelocity(0);
     }
 
@@ -100,10 +90,6 @@ void SpecificWorker::compute()
 void SpecificWorker::emergency()
 {
     std::cout << "Emergency worker" << std::endl;
-    //emergencyCODE
-    //
-    //if (SUCCESSFUL) //The componet is safe for continue
-    //  emmit goToRestore()
 }
 
 
@@ -112,9 +98,6 @@ void SpecificWorker::emergency()
 void SpecificWorker::restore()
 {
     std::cout << "Restore worker" << std::endl;
-    //restoreCODE
-    //Restore emergency component
-
 }
 
 
@@ -132,12 +115,6 @@ void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double tim
     const double* shadow_velocity = robotNode->getVelocity();
     float orientation = atan2(shadow_orientation[1], shadow_orientation[0]) - M_PI_2;
 
-    m_wheels << -1.0,  1.0,  l_sum_div_r,
-                1.0,  1.0, -l_sum_div_r,
-                1.0,  1.0,  l_sum_div_r,
-                -1.0,  1.0, -l_sum_div_r;
-    m_wheels = m_wheels/WHEEL_RADIUS;
-
     Eigen::Matrix2f rt_rotation_matrix;
     rt_rotation_matrix << cos(orientation), -sin(orientation),
             sin(orientation), cos(orientation);
@@ -146,27 +123,27 @@ void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double tim
     Eigen::Vector2f shadow_velocity_2d(shadow_velocity[1], shadow_velocity[0]);
     Eigen::Vector2f rt_rotation_matrix_inv = rt_rotation_matrix.inverse() * shadow_velocity_2d;
 
-    // Velocidades puras en mm/s y rad/s
-    double velocidad_x = 0.1; // Ejemplo: 100 mm/s
-    double velocidad_y = 0.1; // Ejemplo: 150 mm/s
-    double alpha = 0.075; // Ejemplo: 0.05 rad/s
+    // Raw speeds
+    double velocidad_x = 0.1; // mm/s
+    double velocidad_y = 0.1;
+    double alpha = 0.075;  // rads/s
 
-    // Desviación estándar del ruido (ejemplo: 5% del valor de las velocidades)
+    // Noise standard deviation (example: 5% of speed values)
     double ruido_stddev_x = 0.05 * velocidad_x;
     double ruido_stddev_y = 0.05 * velocidad_y;
     double ruido_stddev_alpha = 0.05 * alpha;
 
     RoboCompFullPoseEstimation::FullPoseEuler pose_data;
 
-    // Posición
-    pose_data.x = shadow_position[0];  // metros → mm
-    pose_data.y = shadow_position[1];
+    // Position
+    pose_data.x = -shadow_position[1];  // metros → mm
+    pose_data.y = shadow_position[0];
     pose_data.z = shadow_position[2];
 
-    // Orientación (Euler en radianes) 2D
+    // Orientation (Euler in rads) 2D
     pose_data.rx = 0.0;
     pose_data.ry = 0.0;
-    pose_data.rz = orientation;  // Ángulo Z ya calculado
+    pose_data.rz = orientation;  // Calculated Z-Axis
 
     pose_data.vx = -rt_rotation_matrix_inv(0) + generate_noise(ruido_stddev_x);
     pose_data.vy = -rt_rotation_matrix_inv(1) + generate_noise(ruido_stddev_y);
@@ -227,7 +204,7 @@ void SpecificWorker::OmniRobot_setSpeedBase(float advx, float advz, float rot)
     advx *= 0.001;
 
     Eigen::Vector3d input_speeds(advx, advz, rot);
-    Eigen::Vector4d wheel_speeds = m_wheels * input_speeds;
+    Eigen::Vector4d wheel_speeds = wheelsMatrix * input_speeds;
     printf("Speeds: vx=%.2f[m/s] vy=%.2f[m/s] ω=%.2f[rad/s]\n", advx, advz, rot);
     for (int i = 0; i < 4; i++)
     {

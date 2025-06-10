@@ -138,13 +138,10 @@ private:
     webots::Motor* motors[4];
     webots::PositionSensor* positionSensors[4];
 
-	const double l_sum_div_r = (LX + LY);
-	Eigen::Matrix<double, 4, 3> m_wheels;
+	const double halfSumLxLyOverRadius = (LX + LY) * 0.5;
+	Eigen::Matrix<double, 4, 3> wheelsMatrix;
 
     void printNotImplementedWarningMessage(const string functionName);
-
-signals:
-	//void customSignal();
 };
 
 #endif
