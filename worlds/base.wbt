@@ -4,7 +4,6 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "../protos/P3Bot.proto"
-EXTERNPROTO "../protos/KinovaGen3.proto"
 
 WorldInfo {
   info [
@@ -38,8 +37,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.2702231152547185 -0.283545197362322 -0.9200986844001012 1.9258272517580988
-  position 0.21758253928439217 0.5873137825846159 -0.4277361820758656
+  orientation 0.30547933426549184 0.3089083775349667 0.9006986125366391 4.331148978405962
+  position 0.156698548938953 0.033056308986158106 -0.23381549973133137
 }
 TexturedBackground {
 }
