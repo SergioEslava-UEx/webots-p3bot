@@ -145,7 +145,7 @@ PROTO P3Bot [
           }
         ]
         name "wheel4"
-        contactMaterial "InteriorWheelMat"
+        contactMaterial "ExteriorWheelMat"
         boundingObject Pose {
           rotation 1 0 0 1.5708
           children [
@@ -194,7 +194,7 @@ PROTO P3Bot [
           }
         ]
         name "wheel2"
-        contactMaterial "ExteriorWheelMat"
+        contactMaterial "InteriorWheelMat"
         boundingObject Pose {
           rotation 1 0 0 1.5708
           children [
