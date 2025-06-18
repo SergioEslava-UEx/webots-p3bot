@@ -294,14 +294,7 @@ Robot {
   }
   physics Physics {
     density -1
-    mass 22
-    centerOfMass [
-      0 0 -0.045
-    ]
-    inertiaMatrix [
-      0.166204 0.418086 0.55459
-      0 0 0
-    ]
+    mass 49.5
   }
   controller IS controller
   supervisor TRUE
