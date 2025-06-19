@@ -25,6 +25,7 @@ GenericWorker::GenericWorker(const ConfigLoader& configLoader, TuplePrx tprx) : 
 
 	this->configLoader = configLoader;
 	
+	fullposeestimationpub_pubproxy = std::get<0>(tprx);
 
 	states["Initialize"] = std::make_unique<GRAFCETStep>("Initialize", BASIC_PERIOD, nullptr, std::bind(&GenericWorker::initialize, this));
 	states["Compute"] = std::make_unique<GRAFCETStep>("Compute", configLoader.get<int>("Period.Compute"), std::bind(&GenericWorker::compute, this));
@@ -124,5 +125,9 @@ void GenericWorker::hibernationCheck()
 		originalPeriod = this->getPeriod("Compute");
         this->setPeriod("Compute", 500);
     }
+}
+
+void GenericWorker::hibernationTick(){
+	hibernation = true;
 }
 

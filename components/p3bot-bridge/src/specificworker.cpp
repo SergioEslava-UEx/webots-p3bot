@@ -30,24 +30,6 @@ SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, 
 		#ifdef HIBERNATION_ENABLED
 			hibernationChecker.start(500);
 		#endif
-		
-		
-		
-		// Example statemachine:
-		/***
-		//Your definition for the statesmachine (if you dont want use a execute function, use nullptr)
-		states["CustomState"] = std::make_unique<GRAFCETStep>("CustomState", period, 
-															std::bind(&SpecificWorker::customLoop, this),  // Cyclic function
-															std::bind(&SpecificWorker::customEnter, this), // On-enter function
-															std::bind(&SpecificWorker::customExit, this)); // On-exit function
-
-		//Add your definition of transitions (addTransition(originOfSignal, signal, dstState))
-		states["CustomState"]->addTransition(states["CustomState"].get(), SIGNAL(entered()), states["OtherState"].get());
-		states["Compute"]->addTransition(this, SIGNAL(customSignal()), states["CustomState"].get()); //Define your signal in the .h file under the "Signals" section.
-
-		//Add your custom state
-		statemachine.addState(states["CustomState"].get());
-		***/
 
 		statemachine.setChildMode(QState::ExclusiveStates);
 		statemachine.start();
@@ -57,7 +39,14 @@ SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, 
 			qWarning() << error;
 			throw error;
 		}
-	}
+
+        wheelsMatrix <<
+                     1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS, SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                    -1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS,  SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                    1.0/ WHEEL_RADIUS,   1.0/ WHEEL_RADIUS,  SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                    -1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS, SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT;
+
+    }
 }
 
 SpecificWorker::~SpecificWorker()
@@ -65,52 +54,53 @@ SpecificWorker::~SpecificWorker()
 	std::cout << "Destroying SpecificWorker" << std::endl;
 }
 
+
 void SpecificWorker::initialize()
 {
-    std::cout << "initialize worker" << std::endl;
-    //initializeCODE
+    std::cout << "Initialize worker" << std::endl;
+    this->setPeriod("Compute",TIME_STEP);
 
-    /////////GET PARAMS, OPEND DEVICES....////////
-    //int period = configLoader.get<int>("Period.Compute") //NOTE: If you want get period of compute use getPeriod("compute")
-    //std::string device = configLoader.get<std::string>("Device.name") 
+    robot = new webots::Supervisor();
+    robotNode = robot->getSelf();
+
+    // Inicializa los motores y los sensores de posición.
+    const char *motorNames[4] = {"wheel1", "wheel2", "wheel3", "wheel4"};
+    for (int i = 0; i < 4; i++)
+    {
+        motors[i] = robot->getMotor(motorNames[i]);
+        positionSensors[i] = motors[i]->getPositionSensor();
+        positionSensors[i]->enable(this->getPeriod("Compute"));
+        motors[i]->setPosition(INFINITY); // Speed Mode
+        motors[i]->setVelocity(0);
+    }
 
 }
+
+
 
 void SpecificWorker::compute()
 {
-    std::cout << "Compute worker" << std::endl;
-	//computeCODE
-	//try
-	//{
-	//  camera_proxy->getYImage(0,img, cState, bState);
-    //    if (img.empty())
-    //        emit goToEmergency()
-	//  memcpy(image_gray.data, &img[0], m_width*m_height*sizeof(uchar));
-	//  searchTags(image_gray);
-	//}
-	//catch(const Ice::Exception &e)
-	//{
-	//  std::cout << "Error reading from Camera" << e << std::endl;
-	//}
+    double now = robot->getTime() * 1000;
+
+    if(robot) receiving_robotSpeed(robot, now);
+    robot->step(this->getPeriod("Compute"));
 }
+
+
 
 void SpecificWorker::emergency()
 {
     std::cout << "Emergency worker" << std::endl;
-    //emergencyCODE
-    //
-    //if (SUCCESSFUL) //The componet is safe for continue
-    //  emmit goToRestore()
 }
+
+
 
 //Execute one when exiting to emergencyState
 void SpecificWorker::restore()
 {
     std::cout << "Restore worker" << std::endl;
-    //restoreCODE
-    //Restore emergency component
-
 }
+
 
 int SpecificWorker::startup_check()
 {
@@ -119,79 +109,127 @@ int SpecificWorker::startup_check()
 	return 0;
 }
 
+void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double timestamp)
+{
+    const double* shadow_position = robotNode->getPosition();
+    const double* shadow_orientation = robotNode->getOrientation();
+    const double* shadow_velocity = robotNode->getVelocity();
+    float orientation = atan2(shadow_orientation[1], shadow_orientation[0]) - M_PI_2;
+
+    Eigen::Matrix2f rt_rotation_matrix;
+    rt_rotation_matrix << cos(orientation), -sin(orientation),
+            sin(orientation), cos(orientation);
+
+    // Multiply the velocity vector by the inverse of the rotation matrix to get the velocity in the robot reference system
+    Eigen::Vector2f shadow_velocity_2d(shadow_velocity[1], shadow_velocity[0]);
+    Eigen::Vector2f rt_rotation_matrix_inv = rt_rotation_matrix.inverse() * shadow_velocity_2d;
+
+    // Raw speeds
+    double velocidad_x = 0.1; // mm/s
+    double velocidad_y = 0.1;
+    double alpha = 0.075;  // rads/s
+
+    // Noise standard deviation (example: 5% of speed values)
+    double ruido_stddev_x = 0.05 * velocidad_x;
+    double ruido_stddev_y = 0.05 * velocidad_y;
+    double ruido_stddev_alpha = 0.05 * alpha;
+
+    RoboCompFullPoseEstimation::FullPoseEuler pose_data;
+
+    // Position
+    pose_data.x = -shadow_position[1];  // metros → mm
+    pose_data.y = shadow_position[0];
+    pose_data.z = shadow_position[2];
+
+    // Orientation (Euler in rads) 2D
+    pose_data.rx = 0.0;
+    pose_data.ry = 0.0;
+    pose_data.rz = orientation;  // Calculated Z-Axis
+
+    pose_data.vx = -rt_rotation_matrix_inv(0) + generate_noise(ruido_stddev_x);
+    pose_data.vy = -rt_rotation_matrix_inv(1) + generate_noise(ruido_stddev_y);
+    pose_data.vz = 0;
+    pose_data.vrx = 0;
+    pose_data.vry = 0;
+    pose_data.vrz = shadow_velocity[5] + generate_noise(ruido_stddev_alpha);
+    pose_data.timestamp = timestamp;
+
+    this->fullposeestimationpub_pubproxy->newFullPose(pose_data);
+}
+
+double SpecificWorker::generate_noise(double stddev)
+{
+    std::random_device rd; // Obtiene una semilla aleatoria del hardware
+    std::mt19937 gen(rd()); // Generador de números aleatorios basado en Mersenne Twister
+    std::normal_distribution<> d(0, stddev); // Distribución normal con media 0 y desviación estándar stddev
+    return d(gen);
+}
+
 void SpecificWorker::OmniRobot_correctOdometer(int x, int z, float alpha)
 {
-	#ifdef HIBERNATION_ENABLED
-		hibernation = true;
-	#endif
-	//implementCODE
-
+    printNotImplementedWarningMessage("OmniRobot_correctOdometer");
 }
 
 void SpecificWorker::OmniRobot_getBasePose(int &x, int &z, float &alpha)
 {
-	#ifdef HIBERNATION_ENABLED
-		hibernation = true;
-	#endif
-	//implementCODE
-
+    printNotImplementedWarningMessage("OmniRobot_getBasePose");
 }
 
 void SpecificWorker::OmniRobot_getBaseState(RoboCompGenericBase::TBaseState &state)
 {
-	#ifdef HIBERNATION_ENABLED
-		hibernation = true;
-	#endif
-	//implementCODE
-
+    state.x = robotNode->getField("translation")->getSFVec3f()[0];
+    state.z = robotNode->getField("translation")->getSFVec3f()[1];
+    state.alpha = robotNode->getField("rotation")->getSFRotation()[3];
 }
 
 void SpecificWorker::OmniRobot_resetOdometer()
 {
-	#ifdef HIBERNATION_ENABLED
-		hibernation = true;
-	#endif
-	//implementCODE
-
+    printNotImplementedWarningMessage("OmniRobot_resetOdometer");
 }
 
 void SpecificWorker::OmniRobot_setOdometer(RoboCompGenericBase::TBaseState state)
 {
-	#ifdef HIBERNATION_ENABLED
-		hibernation = true;
-	#endif
-	//implementCODE
-
+    printNotImplementedWarningMessage("OmniRobot_setOdometer");
 }
 
 void SpecificWorker::OmniRobot_setOdometerPose(int x, int z, float alpha)
 {
-	#ifdef HIBERNATION_ENABLED
-		hibernation = true;
-	#endif
-	//implementCODE
-
+    printNotImplementedWarningMessage("OmniRobot_setOdometerPose");
 }
 
 void SpecificWorker::OmniRobot_setSpeedBase(float advx, float advz, float rot)
 {
-	#ifdef HIBERNATION_ENABLED
-		hibernation = true;
-	#endif
-	//implementCODE
+    advz *= 0.001;
+    advx *= 0.001;
 
+    Eigen::Vector3d input_speeds(advx, advz, rot);
+    Eigen::Vector4d wheel_speeds = wheelsMatrix * input_speeds;
+
+    std::cout << "wheelsMatrix:\n" << wheelsMatrix << std::endl;
+    std::cout << "Input speeds: [" << advx << ", " << advz << ", " << rot << "]\n";
+    std::cout << "Computed wheel speeds:\n" << wheel_speeds.transpose() << std::endl;    for (int i = 0; i < 4; i++)
+    {
+        motors[i]->setVelocity(wheel_speeds[i]);
+    }
 }
 
 void SpecificWorker::OmniRobot_stopBase()
 {
-	#ifdef HIBERNATION_ENABLED
-		hibernation = true;
-	#endif
-	//implementCODE
+    for (int i = 0; i < 4; i++)
+    {
+        motors[i]->setVelocity(0);
+    }
+}
 
+void SpecificWorker::printNotImplementedWarningMessage(const string functionName) {
+    cout << "Function not implemented used: " << "[" << functionName << "]" << std::endl;
 }
 
 
+
+/**************************************/
+// From the RoboCompFullPoseEstimationPub you can publish calling this methods:
+// RoboCompFullPoseEstimationPub::void this->fullposeestimationpub_pubproxy->newFullPose(RoboCompFullPoseEstimation::FullPoseEuler pose)
 
 /**************************************/
 // From the RoboCompOmniRobot you can use this types:

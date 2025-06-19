@@ -1,11 +1,15 @@
+[Proxies]
+# This property is used by the clients to connect to IceStorm.
+TopicManager = "IceStorm/TopicManager:default -p 9999"
+
+# Proxies for publishes interfaces
+FullPoseEstimationPubPrefix = ""
 
 
 
 [Endpoints]
 # Endpoints for implements interfaces
 OmniRobot = "tcp -p 0"
-
-
 
 
 
