@@ -40,10 +40,10 @@ SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, 
 			throw error;
 		}
 
-        wheelsMatrix << -1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS,  halfSumLxLyOverRadius,
-                        1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS, halfSumLxLyOverRadius,
-                        1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS, halfSumLxLyOverRadius,
-                        -1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS,  halfSumLxLyOverRadius;
+        wheelsMatrix << -1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS,  SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                        1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS, SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                        1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS, SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                        -1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS,  SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT;
 	}
 }
 

@@ -53,8 +53,8 @@ using namespace std;
 using namespace Eigen;
 
 #define TIME_STEP 33
-// robot geometry
 #define WHEEL_RADIUS 0.08
+#define ROTATION_INCREMENT_COEFFICIENT 6.3 // multiplier coefficient created to adjust simulated rotation into real in Webots
 #define LX 0.270  // longitudinal distance from robot's COM to wheel [m].
 #define LY 0.475  // lateral distance from robot's COM to wheel [m].
 
@@ -138,7 +138,7 @@ private:
     webots::Motor* motors[4];
     webots::PositionSensor* positionSensors[4];
 
-	const double halfSumLxLyOverRadius = (LX + LY) * 0.5;
+	const double SumLxLyOverRadius = (LX + LY);
 	Eigen::Matrix<double, 4, 3> wheelsMatrix;
 
     void printNotImplementedWarningMessage(const string functionName);
