@@ -40,11 +40,13 @@ SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, 
 			throw error;
 		}
 
-        wheelsMatrix << -1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS,  SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
-                        1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS, SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
-                        1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS, SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
-                        -1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS,  SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT;
-	}
+        wheelsMatrix <<
+                     1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS, SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                    -1.0/ WHEEL_RADIUS,  -1.0/ WHEEL_RADIUS,  SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                    1.0/ WHEEL_RADIUS,   1.0/ WHEEL_RADIUS,  SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT,
+                    -1.0/ WHEEL_RADIUS,  1.0/ WHEEL_RADIUS, SumLxLyOverRadius * ROTATION_INCREMENT_COEFFICIENT;
+
+    }
 }
 
 SpecificWorker::~SpecificWorker()
@@ -62,7 +64,7 @@ void SpecificWorker::initialize()
     robotNode = robot->getSelf();
 
     // Inicializa los motores y los sensores de posición.
-    const char *motorNames[4] = {"wheel2", "wheel1", "wheel4", "wheel3"};
+    const char *motorNames[4] = {"wheel1", "wheel2", "wheel3", "wheel4"};
     for (int i = 0; i < 4; i++)
     {
         motors[i] = robot->getMotor(motorNames[i]);
@@ -202,8 +204,10 @@ void SpecificWorker::OmniRobot_setSpeedBase(float advx, float advz, float rot)
 
     Eigen::Vector3d input_speeds(advx, advz, rot);
     Eigen::Vector4d wheel_speeds = wheelsMatrix * input_speeds;
-    printf("Speeds: vx=%.2f[m/s] vy=%.2f[m/s] ω=%.2f[rad/s]\n", advx, advz, rot);
-    for (int i = 0; i < 4; i++)
+
+    std::cout << "wheelsMatrix:\n" << wheelsMatrix << std::endl;
+    std::cout << "Input speeds: [" << advx << ", " << advz << ", " << rot << "]\n";
+    std::cout << "Computed wheel speeds:\n" << wheel_speeds.transpose() << std::endl;    for (int i = 0; i < 4; i++)
     {
         motors[i]->setVelocity(wheel_speeds[i]);
     }
