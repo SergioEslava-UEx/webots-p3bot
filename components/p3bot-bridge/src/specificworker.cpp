@@ -65,7 +65,7 @@ void SpecificWorker::initialize()
     robot = new webots::Supervisor();
     robotNode = robot->getSelf();
 
-    // Inicializa los motores y los sensores de posición.
+    // Base motors and sensors initialization.
     const char *motorNames[4] = {"wheel1", "wheel2", "wheel3", "wheel4"};
     for (int i = 0; i < 4; i++)
     {
@@ -76,6 +76,35 @@ void SpecificWorker::initialize()
         motors[i]->setVelocity(0);
     }
 
+    // Right Kinova Arm motors and sensors initialization.
+    std::string prefix = "Right_";
+    for (size_t i = 0; i < kinovaMotorNames.size(); ++i) {
+
+        kinovaArmRMotors.push_back(robot->getMotor(prefix + kinovaMotorNames[i]));
+        kinovaArmRSensors.push_back(robot->getPositionSensor(prefix + kinovaSensorNames[i]));
+
+        if (!kinovaArmRMotors[i] || !kinovaArmRSensors[i]) {
+            std::cerr << "Error: No se pudo obtener el motor o sensor para el actuator " << i+1 << std::endl;
+            continue;
+        }
+
+        kinovaArmRSensors[i]->enable(this->getPeriod("Compute"));
+    }
+
+    // Left Kinova Arm motors and sensors initialization.
+    prefix = "Left_";
+    for (size_t i = 0; i < kinovaMotorNames.size(); ++i) {
+
+        kinovaArmLMotors.push_back(robot->getMotor(prefix + kinovaMotorNames[i]));
+        kinovaArmLSensors.push_back(robot->getPositionSensor(prefix + kinovaSensorNames[i]));
+
+        if (!kinovaArmLMotors[i] || !kinovaArmLSensors[i]) {
+            std::cerr << "Error: No se pudo obtener el motor o sensor para el actuator " << i+1 << std::endl;
+            continue;
+        }
+
+        kinovaArmLSensors[i]->enable(this->getPeriod("Compute"));
+    }
 }
 
 
@@ -258,10 +287,32 @@ RoboCompKinovaArm::TGripper SpecificWorker::KinovaArm_getGripperState()
 
 RoboCompKinovaArm::TJoints SpecificWorker::KinovaArm_getJointsState()
 {
-	RoboCompKinovaArm::TJoints ret{};
-	//implementCODE
+    RoboCompKinovaArm::TJoints ret;
+    ret.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
 
-	return ret;
+    for (int i = 0; i < 7; ++i)
+    {
+        RoboCompKinovaArm::TJoint joint;
+        joint.id = i;
+
+        if (kinovaArmRSensors[i])
+            joint.angle = kinovaArmRSensors[i]->getValue();
+        else
+            joint.angle = 0.0f;
+
+        // Not available information, for now...
+        joint.velocity = 0.0f;
+        joint.torque = 0.0f;
+        joint.current = 0.0f;
+        joint.voltage = 0.0f;
+        joint.motorTemperature = 0.0f;
+        joint.coreTemperature = 0.0f;
+
+        ret.joints.push_back(joint);
+    }
+
+    return ret;
 }
 
 RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm_getToolInfo()
@@ -274,14 +325,37 @@ RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm_getToolInfo()
 
 void SpecificWorker::KinovaArm_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles)
 {
-	//implementCODE
+    const auto& jointAngles = angles.jointAngles;
 
+    for (size_t i = 0; i < jointAngles.size() && i < kinovaArmRMotors.size(); ++i)
+    {
+        if (kinovaArmRMotors[i])
+        {
+            kinovaArmRMotors[i]->setPosition(jointAngles[i]);
+        }
+        else
+        {
+            std::cerr << "Motor nulo en la articulación " << i << std::endl;
+        }
+    }
 }
 
 void SpecificWorker::KinovaArm_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds)
 {
-	//implementCODE
+    const auto& jointSpeeds = speeds.jointSpeeds;
 
+    for (size_t i = 0; i < 7 && i < jointSpeeds.size(); ++i)
+    {
+        if (kinovaArmRMotors[i])
+        {
+            kinovaArmRMotors[i]->setPosition(INFINITY);  // Desactiva el control de posición
+            kinovaArmRMotors[i]->setVelocity(jointSpeeds[i]);
+        }
+        else
+        {
+            std::cerr << "Motor nulo en la articulación " << i << std::endl;
+        }
+    }
 }
 
 void SpecificWorker::KinovaArm_openGripper()
@@ -326,10 +400,32 @@ RoboCompKinovaArm::TGripper SpecificWorker::KinovaArm1_getGripperState()
 
 RoboCompKinovaArm::TJoints SpecificWorker::KinovaArm1_getJointsState()
 {
-	RoboCompKinovaArm::TJoints ret{};
-	//implementCODE
+    RoboCompKinovaArm::TJoints ret;
+    ret.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
 
-	return ret;
+    for (int i = 0; i < 7; ++i)
+    {
+        RoboCompKinovaArm::TJoint joint;
+        joint.id = i;
+
+        if (kinovaArmLSensors[i])
+            joint.angle = kinovaArmLSensors[i]->getValue();
+        else
+            joint.angle = 0.0f;
+
+        // Not available information, for now...
+        joint.velocity = 0.0f;
+        joint.torque = 0.0f;
+        joint.current = 0.0f;
+        joint.voltage = 0.0f;
+        joint.motorTemperature = 0.0f;
+        joint.coreTemperature = 0.0f;
+
+        ret.joints.push_back(joint);
+    }
+
+    return ret;
 }
 
 RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm1_getToolInfo()
@@ -342,14 +438,39 @@ RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm1_getToolInfo()
 
 void SpecificWorker::KinovaArm1_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles)
 {
-	//implementCODE
+    const auto& jointAngles = angles.jointAngles;
 
+    for (size_t i = 0; i < jointAngles.size() && i < kinovaArmLMotors.size(); ++i)
+    {
+        if (kinovaArmLMotors[i])
+        {
+            kinovaArmLMotors[i]->setPosition(jointAngles[i]);
+        }
+        else
+        {
+            std::cerr << "Motor nulo en la articulación " << i << std::endl;
+        }
+    }
+
+    std::cout << "AAAAA" << std::endl;
 }
 
 void SpecificWorker::KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds)
 {
-	//implementCODE
+    const auto& jointSpeeds = speeds.jointSpeeds;
 
+    for (size_t i = 0; i < 7 && i < jointSpeeds.size(); ++i)
+    {
+        if (kinovaArmLMotors[i])
+        {
+            kinovaArmLMotors[i]->setPosition(INFINITY);  // Desactiva el control de posición
+            kinovaArmLMotors[i]->setVelocity(jointSpeeds[i]);
+        }
+        else
+        {
+            std::cerr << "Motor nulo en la articulación " << i << std::endl;
+        }
+    }
 }
 
 void SpecificWorker::KinovaArm1_openGripper()

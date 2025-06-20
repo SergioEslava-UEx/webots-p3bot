@@ -10,6 +10,7 @@ PROTO KinovaGen3 [
   field  SFRotation  rotation        0 0 1 0
   field  SFString    name            "KinovaGen3"  # Is `Robot.name`.
   field  SFBool      invertWrist     FALSE
+  field  SFString    prefix          "Right_"
   field  SFString    LINKS           "--------------------"
   field  SFFloat     position_0_link  0
   field  SFFloat     position_1_link  0
@@ -42,12 +43,12 @@ PROTO KinovaGen3 [
         }
         device [
           RotationalMotor {
-            name "Actuator1"
+            name %<= '"' + fields.prefix.value + "Actuator1" + '"'; >%
             maxVelocity 0.8727
             maxTorque 39.0
           }
           PositionSensor {
-            name "Actuator1_sensor"
+            name %<= '"' + fields.prefix.value + "Actuator1_sensor" + '"'; >%
           }
         ]
         endPoint Solid {
@@ -72,14 +73,14 @@ PROTO KinovaGen3 [
               }
               device [
                 RotationalMotor {
-                  name "Actuator2"
+                  name %<= '"' + fields.prefix.value + "Actuator2" + '"'; >%
                   maxVelocity 0.8727
                   minPosition -2.41
                   maxPosition 2.41
                   maxTorque 39.0
                 }
                 PositionSensor {
-                  name "Actuator2_sensor"
+                  name %<= '"' + fields.prefix.value + "Actuator2_sensor" + '"'; >%
                 }
               ]
               endPoint Solid {
@@ -104,12 +105,12 @@ PROTO KinovaGen3 [
                     }
                     device [
                       RotationalMotor {
-                        name "Actuator3"
+                        name %<= '"' + fields.prefix.value + "Actuator3" + '"'; >%
                         maxVelocity 0.8727
                         maxTorque 39.0
                       }
                       PositionSensor {
-                        name "Actuator3_sensor"
+                        name %<= '"' + fields.prefix.value + "Actuator3_sensor" + '"'; >%
                       }
                     ]
                     endPoint Solid {
@@ -134,14 +135,14 @@ PROTO KinovaGen3 [
                           }
                           device [
                             RotationalMotor {
-                              name "Actuator4"
+                              name %<= '"' + fields.prefix.value + "Actuator4" + '"'; >%
                               maxVelocity 0.8727
                               minPosition -2.66
                               maxPosition 2.66
                               maxTorque 39.0
                             }
                             PositionSensor {
-                              name "Actuator4_sensor"
+                              name %<= '"' + fields.prefix.value + "Actuator4_sensor" + '"'; >%
                             }
                           ]
                           endPoint Solid {
@@ -166,12 +167,12 @@ PROTO KinovaGen3 [
                                 }
                                 device [
                                   RotationalMotor {
-                                    name "Actuator5"
+                                    name %<= '"' + fields.prefix.value + "Actuator5" + '"'; >%
                                     maxVelocity 0.8727
                                     maxTorque 9.0
                                   }
                                   PositionSensor {
-                                    name "Actuator5_sensor"
+                                    name %<= '"' + fields.prefix.value + "Actuator5_sensor" + '"'; >%
                                   }
                                 ]
                                 endPoint Solid {
@@ -200,14 +201,14 @@ PROTO KinovaGen3 [
                                       }
                                       device [
                                         RotationalMotor {
-                                          name "Actuator6"
+                                          name %<= '"' + fields.prefix.value + "Actuator6" + '"'; >%
                                           maxVelocity 0.8727
                                           minPosition -2.23
                                           maxPosition 2.23
                                           maxTorque 9.0
                                         }
                                         PositionSensor {
-                                          name "Actuator6_sensor"
+                                          name %<= '"' + fields.prefix.value + "Actuator6_sensor" + '"'; >%
                                         }
                                       ]
                                       endPoint Solid {
@@ -232,12 +233,12 @@ PROTO KinovaGen3 [
                                             }
                                             device [
                                               RotationalMotor {
-                                                name "Actuator7"
+                                                name %<= '"' + fields.prefix.value + "Actuator7" + '"'; >%
                                                 maxVelocity 0.8727
                                                 maxTorque 9.0
                                               }
                                               PositionSensor {
-                                                name "Actuator7_sensor"
+                                                name %<= '"' + fields.prefix.value + "Actuator7_sensor" + '"'; >%
                                               }
                                             ]
                                             endPoint Solid {

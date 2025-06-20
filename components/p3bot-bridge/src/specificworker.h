@@ -165,16 +165,19 @@ private:
 	const double SumLxLyOverRadius = (LX + LY);
 	Eigen::Matrix<double, 4, 3> wheelsMatrix;
 
-    webots::Motor *kinovaArmRMotors[7];
-    webots::PositionSensor *kinovaArmRSensors[7];
+    std::vector<webots::Motor*> kinovaArmRMotors;
+    std::vector<webots::PositionSensor*> kinovaArmRSensors;
+
+    std::vector<webots::Motor*> kinovaArmLMotors;
+    std::vector<webots::PositionSensor*> kinovaArmLSensors;
 
     // Exact names for actuators and sensors of KinovaGen3 in Webots
-    std::string kinovaMotorNames[7] = {
+    std::vector<std::string> kinovaMotorNames = {
             "Actuator1", "Actuator2", "Actuator3",
             "Actuator4", "Actuator5", "Actuator6", "Actuator7"
     };
 
-    std::string kinovaSensorNames[7] = {
+    std::vector<std::string> kinovaSensorNames = {
             "Actuator1_sensor", "Actuator2_sensor", "Actuator3_sensor",
             "Actuator4_sensor", "Actuator5_sensor", "Actuator6_sensor", "Actuator7_sensor"
     };
