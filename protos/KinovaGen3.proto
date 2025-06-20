@@ -9,12 +9,6 @@ PROTO KinovaGen3 [
   field  SFVec3f     translation     0 0 0
   field  SFRotation  rotation        0 0 1 0
   field  SFString    name            "KinovaGen3"  # Is `Robot.name`.
-  field  SFString    controller      "<none>"         # Is `Robot.controller`.
-  field  MFString    controllerArgs  []             # Is `Robot.controllerArgs`.
-  field  SFString    customData      ""             # Is `Robot.customData`.
-  field  SFBool      supervisor      FALSE          # Is `Robot.supervisor`.
-  field  SFBool      synchronization TRUE           # Is `Robot.synchronization`.
-  field  SFBool      selfCollision   FALSE          # Is `Robot.selfCollision`.
   field  SFBool      invertWrist     FALSE
   field  SFString    LINKS           "--------------------"
   field  SFFloat     position_0_link  0
@@ -26,15 +20,9 @@ PROTO KinovaGen3 [
   field  SFFloat     position_6_link  0
 ]
 {
-  Robot {
+  Solid {
     translation IS translation
     rotation IS rotation
-    controller IS controller
-    controllerArgs IS controllerArgs
-    customData IS customData
-    supervisor IS supervisor
-    synchronization IS synchronization
-    selfCollision IS selfCollision
     children [
       Shape {
         appearance DEF base_link_material PBRAppearance {
