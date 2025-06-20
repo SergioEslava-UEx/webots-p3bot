@@ -80,8 +80,32 @@ public:
      */
 	~SpecificWorker();
 
-    void receiving_robotSpeed(webots::Supervisor* _robot, double timestamp);
-    double generate_noise(double stddev);
+    // #######################
+    // # KinovaArm_R interface #
+    // #######################
+	bool KinovaArm_closeGripper();
+	RoboCompKinovaArm::TPose KinovaArm_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo);
+	RoboCompKinovaArm::TGripper KinovaArm_getGripperState();
+	RoboCompKinovaArm::TJoints KinovaArm_getJointsState();
+	RoboCompKinovaArm::TToolInfo KinovaArm_getToolInfo();
+	void KinovaArm_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles);
+	void KinovaArm_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds);
+	void KinovaArm_openGripper();
+	void KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo);
+
+
+    // #######################
+    // # KinovaArm_L interface #
+    // #######################
+	bool KinovaArm1_closeGripper();
+	RoboCompKinovaArm::TPose KinovaArm1_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo);
+	RoboCompKinovaArm::TGripper KinovaArm1_getGripperState();
+	RoboCompKinovaArm::TJoints KinovaArm1_getJointsState();
+	RoboCompKinovaArm::TToolInfo KinovaArm1_getToolInfo();
+	void KinovaArm1_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles);
+	void KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds);
+	void KinovaArm1_openGripper();
+	void KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo);
 
     // #######################
     // # OMNIROBOT interface #
@@ -141,6 +165,25 @@ private:
 	const double SumLxLyOverRadius = (LX + LY);
 	Eigen::Matrix<double, 4, 3> wheelsMatrix;
 
+    std::vector<webots::Motor*> kinovaArmRMotors;
+    std::vector<webots::PositionSensor*> kinovaArmRSensors;
+
+    std::vector<webots::Motor*> kinovaArmLMotors;
+    std::vector<webots::PositionSensor*> kinovaArmLSensors;
+
+    // Exact names for actuators and sensors of KinovaGen3 in Webots
+    std::vector<std::string> kinovaMotorNames = {
+            "Actuator1", "Actuator2", "Actuator3",
+            "Actuator4", "Actuator5", "Actuator6", "Actuator7"
+    };
+
+    std::vector<std::string> kinovaSensorNames = {
+            "Actuator1_sensor", "Actuator2_sensor", "Actuator3_sensor",
+            "Actuator4_sensor", "Actuator5_sensor", "Actuator6_sensor", "Actuator7_sensor"
+    };
+
+    void receiving_robotSpeed(webots::Supervisor* _robot, double timestamp);
+    double generateNoise(double stddev);
     void printNotImplementedWarningMessage(const string functionName);
 };
 

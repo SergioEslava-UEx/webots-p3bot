@@ -35,6 +35,7 @@
 #include <FullPoseEstimation.h>
 #include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
+#include <KinovaArm.h>
 #include <OmniRobot.h>
 
 #define BASIC_PERIOD 100
@@ -59,6 +60,26 @@ public:
 
 
 	RoboCompFullPoseEstimationPub::FullPoseEstimationPubPrxPtr fullposeestimationpub_pubproxy;
+
+	virtual bool KinovaArm_closeGripper() = 0;
+	virtual RoboCompKinovaArm::TPose KinovaArm_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo) = 0;
+	virtual RoboCompKinovaArm::TGripper KinovaArm_getGripperState() = 0;
+	virtual RoboCompKinovaArm::TJoints KinovaArm_getJointsState() = 0;
+	virtual RoboCompKinovaArm::TToolInfo KinovaArm_getToolInfo() = 0;
+	virtual void KinovaArm_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles) = 0;
+	virtual void KinovaArm_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds) = 0;
+	virtual void KinovaArm_openGripper() = 0;
+	virtual void KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo) = 0;
+
+	virtual bool KinovaArm1_closeGripper() = 0;
+	virtual RoboCompKinovaArm::TPose KinovaArm1_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo) = 0;
+	virtual RoboCompKinovaArm::TGripper KinovaArm1_getGripperState() = 0;
+	virtual RoboCompKinovaArm::TJoints KinovaArm1_getJointsState() = 0;
+	virtual RoboCompKinovaArm::TToolInfo KinovaArm1_getToolInfo() = 0;
+	virtual void KinovaArm1_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles) = 0;
+	virtual void KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds) = 0;
+	virtual void KinovaArm1_openGripper() = 0;
+	virtual void KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo) = 0;
 
 	virtual void OmniRobot_correctOdometer(int x, int z, float alpha) = 0;
 	virtual void OmniRobot_getBasePose(int &x, int &z, float &alpha) = 0;

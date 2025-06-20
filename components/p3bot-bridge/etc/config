@@ -5,6 +5,8 @@ Proxies.TopicManager = "IceStorm/TopicManager:default -p 9999"
 Proxies.FullPoseEstimationPubPrefix = ""
 
 # Endpoints for implements interfaces
+Endpoints.KinovaArm1 = "tcp -p 10006"
+Endpoints.KinovaArm = "tcp -p 10005"
 Endpoints.OmniRobot = "tcp -p 10004"
 
 
