@@ -9,6 +9,8 @@ FullPoseEstimationPubPrefix = ""
 
 [Endpoints]
 # Endpoints for implements interfaces
+KinovaArm1 = "tcp -p 0"
+KinovaArm = "tcp -p 0"
 OmniRobot = "tcp -p 0"
 
 

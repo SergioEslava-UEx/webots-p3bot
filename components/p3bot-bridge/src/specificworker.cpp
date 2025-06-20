@@ -18,6 +18,8 @@
  */
 #include "specificworker.h"
 
+#pragma region ROBOCOMP_METHODS
+
 SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, bool startup_check) : GenericWorker(configLoader, tprx)
 {
 	this->startup_check_flag = startup_check;
@@ -109,6 +111,9 @@ int SpecificWorker::startup_check()
 	return 0;
 }
 
+#pragma endregion ROBOCOMP_METHODS
+
+
 void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double timestamp)
 {
     const double* shadow_position = robotNode->getPosition();
@@ -146,24 +151,26 @@ void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double tim
     pose_data.ry = 0.0;
     pose_data.rz = orientation;  // Calculated Z-Axis
 
-    pose_data.vx = -rt_rotation_matrix_inv(0) + generate_noise(ruido_stddev_x);
-    pose_data.vy = -rt_rotation_matrix_inv(1) + generate_noise(ruido_stddev_y);
+    pose_data.vx = -rt_rotation_matrix_inv(0) + generateNoise(ruido_stddev_x);
+    pose_data.vy = -rt_rotation_matrix_inv(1) + generateNoise(ruido_stddev_y);
     pose_data.vz = 0;
     pose_data.vrx = 0;
     pose_data.vry = 0;
-    pose_data.vrz = shadow_velocity[5] + generate_noise(ruido_stddev_alpha);
+    pose_data.vrz = shadow_velocity[5] + generateNoise(ruido_stddev_alpha);
     pose_data.timestamp = timestamp;
 
     this->fullposeestimationpub_pubproxy->newFullPose(pose_data);
 }
 
-double SpecificWorker::generate_noise(double stddev)
+double SpecificWorker::generateNoise(double stddev)
 {
     std::random_device rd; // Obtiene una semilla aleatoria del hardware
     std::mt19937 gen(rd()); // Generador de números aleatorios basado en Mersenne Twister
     std::normal_distribution<> d(0, stddev); // Distribución normal con media 0 y desviación estándar stddev
     return d(gen);
 }
+
+#pragma region OMNIROBOT_INTERFACE
 
 void SpecificWorker::OmniRobot_correctOdometer(int x, int z, float alpha)
 {
@@ -221,6 +228,144 @@ void SpecificWorker::OmniRobot_stopBase()
     }
 }
 
+#pragma endregion OMNIROBOT_INTERFACE
+
+#pragma region KINOVA_ARM_R_INTERFACE
+
+bool SpecificWorker::KinovaArm_closeGripper()
+{
+	bool ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompKinovaArm::TPose SpecificWorker::KinovaArm_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo)
+{
+	RoboCompKinovaArm::TPose ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompKinovaArm::TGripper SpecificWorker::KinovaArm_getGripperState()
+{
+	RoboCompKinovaArm::TGripper ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompKinovaArm::TJoints SpecificWorker::KinovaArm_getJointsState()
+{
+	RoboCompKinovaArm::TJoints ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm_getToolInfo()
+{
+	RoboCompKinovaArm::TToolInfo ret{};
+	//implementCODE
+
+	return ret;
+}
+
+void SpecificWorker::KinovaArm_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles)
+{
+	//implementCODE
+
+}
+
+void SpecificWorker::KinovaArm_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds)
+{
+	//implementCODE
+
+}
+
+void SpecificWorker::KinovaArm_openGripper()
+{
+	//implementCODE
+
+}
+
+void SpecificWorker::KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo)
+{
+	//implementCODE
+
+}
+
+#pragma endregion KINOVA_ARM_R_INTERFACE
+
+#pragma region KINOVA_ARM_L_INTERFACE
+
+bool SpecificWorker::KinovaArm1_closeGripper()
+{
+	bool ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompKinovaArm::TPose SpecificWorker::KinovaArm1_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo)
+{
+	RoboCompKinovaArm::TPose ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompKinovaArm::TGripper SpecificWorker::KinovaArm1_getGripperState()
+{
+	RoboCompKinovaArm::TGripper ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompKinovaArm::TJoints SpecificWorker::KinovaArm1_getJointsState()
+{
+	RoboCompKinovaArm::TJoints ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm1_getToolInfo()
+{
+	RoboCompKinovaArm::TToolInfo ret{};
+	//implementCODE
+
+	return ret;
+}
+
+void SpecificWorker::KinovaArm1_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles)
+{
+	//implementCODE
+
+}
+
+void SpecificWorker::KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds)
+{
+	//implementCODE
+
+}
+
+void SpecificWorker::KinovaArm1_openGripper()
+{
+	//implementCODE
+
+}
+
+void SpecificWorker::KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo)
+{
+	//implementCODE
+
+}
+
+#pragma endregion KINOVA_ARM_L_INTERFACE
+
 void SpecificWorker::printNotImplementedWarningMessage(const string functionName) {
     cout << "Function not implemented used: " << "[" << functionName << "]" << std::endl;
 }
@@ -230,6 +375,17 @@ void SpecificWorker::printNotImplementedWarningMessage(const string functionName
 /**************************************/
 // From the RoboCompFullPoseEstimationPub you can publish calling this methods:
 // RoboCompFullPoseEstimationPub::void this->fullposeestimationpub_pubproxy->newFullPose(RoboCompFullPoseEstimation::FullPoseEuler pose)
+
+/**************************************/
+// From the RoboCompKinovaArm you can use this types:
+// RoboCompKinovaArm::TPose
+// RoboCompKinovaArm::TAxis
+// RoboCompKinovaArm::TToolInfo
+// RoboCompKinovaArm::TGripper
+// RoboCompKinovaArm::TJoint
+// RoboCompKinovaArm::TJoints
+// RoboCompKinovaArm::TJointSpeeds
+// RoboCompKinovaArm::TJointAngles
 
 /**************************************/
 // From the RoboCompOmniRobot you can use this types:

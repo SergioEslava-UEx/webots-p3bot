@@ -77,11 +77,13 @@
 #include "genericworker.h"
 #include "../src/specificworker.h"
 
+#include <kinovaarmI.h>
 #include <omnirobotI.h>
 
 #include <FullPoseEstimation.h>
 #include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
+#include <KinovaArm.h>
 #include <OmniRobot.h>
 
 //#define USE_QTGUI
@@ -255,6 +257,12 @@ int P3BotBridge::run(int argc, char* argv[])
 	{
 
 		//Implement code
+		implement<KinovaArmI>(communicator(),
+		                    configLoader.get<std::string>("Endpoints.KinovaArm"), 
+		                    "kinovaarm", worker,  0);
+		implement<KinovaArmI>(communicator(),
+		                    configLoader.get<std::string>("Endpoints.KinovaArm1"), 
+		                    "kinovaarm1", worker,  1);
 		implement<OmniRobotI>(communicator(),
 		                    configLoader.get<std::string>("Endpoints.OmniRobot"), 
 		                    "omnirobot", worker,  0);
