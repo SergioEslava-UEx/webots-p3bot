@@ -451,8 +451,6 @@ void SpecificWorker::KinovaArm1_moveJointsWithAngle(RoboCompKinovaArm::TJointAng
             std::cerr << "Motor nulo en la articulación " << i << std::endl;
         }
     }
-
-    std::cout << "AAAAA" << std::endl;
 }
 
 void SpecificWorker::KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds)

@@ -42,8 +42,8 @@ SET (SOURCES
 
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_IDSL_TO_ICE(FullPoseEstimation OmniRobot FullPoseEstimationPub GenericBase KinovaArm)
-ROBOCOMP_ICE_TO_SRC(FullPoseEstimation OmniRobot FullPoseEstimationPub GenericBase KinovaArm)
+ROBOCOMP_IDSL_TO_ICE(GenericBase KinovaArm FullPoseEstimationPub FullPoseEstimation OmniRobot)
+ROBOCOMP_ICE_TO_SRC(GenericBase KinovaArm FullPoseEstimationPub FullPoseEstimation OmniRobot)
 SET (EXECUTABLE_OUTPUT_PATH ${RC_COMPONENT_DEVEL_PATH}/bin)
 
 # Specify construction and link process
