@@ -12,13 +12,12 @@ PROTO P3Bot [
     DEF KINOVA_ARM_R KinovaGen3{
       name "kinova_arm_r"
       translation 0 -0.0517612 1.04883
-      rotation 0.7399801418653065 0.5678071088571502 -0.36058906913034 2.26299
+      rotation 1 0 0 2.01001
     }
     DEF KINOVA_ARM_L KinovaGen3{
-      invertWrist TRUE
       name "kinova_arm_l"
       translation 0.002 0.055 1.052
-      rotation -0.6450549636234165 0.6450549636234165 0.4096439768989478 2.36401
+      rotation 1 0 0 -2.0100053071795863
       prefix "Left_"
     }
   ] # Is `Robot.children.GROUP_ARMS.children`.     
