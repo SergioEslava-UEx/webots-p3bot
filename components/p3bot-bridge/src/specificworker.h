@@ -184,6 +184,10 @@ private:
 
     void receiving_robotSpeed(webots::Supervisor* _robot, double timestamp);
     double generateNoise(double stddev);
+
+    void moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &jointAngles, vector<webots::Motor *> armMotors);
+    void moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &jointSpeeds, vector<webots::Motor *> armMotors);
+
     void printNotImplementedWarningMessage(const string functionName);
 };
 

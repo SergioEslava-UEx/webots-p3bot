@@ -325,39 +325,13 @@ RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm_getToolInfo()
 
 void SpecificWorker::KinovaArm_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles)
 {
-    const auto& jointAngles = angles.jointAngles;
-
-    for (size_t i = 0; i < jointAngles.size() && i < kinovaArmRMotors.size(); ++i)
-    {
-        if (kinovaArmRMotors[i])
-        {
-            kinovaArmRMotors[i]->setPosition(jointAngles[i]);
-        }
-        else
-        {
-            std::cerr << "Motor nulo en la articulación " << i << std::endl;
-        }
-    }
+    moveBothArmsWithAngle(angles.jointAngles, kinovaArmRMotors);
 }
 
 void SpecificWorker::KinovaArm_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds)
 {
-    const auto& jointSpeeds = speeds.jointSpeeds;
-
-    for (size_t i = 0; i < 7 && i < jointSpeeds.size(); ++i)
-    {
-        if (kinovaArmRMotors[i])
-        {
-            kinovaArmRMotors[i]->setPosition(INFINITY);  // Desactiva el control de posición
-            kinovaArmRMotors[i]->setVelocity(jointSpeeds[i]);
-        }
-        else
-        {
-            std::cerr << "Motor nulo en la articulación " << i << std::endl;
-        }
-    }
+    moveBothArmsWithSpeed(speeds.jointSpeeds, kinovaArmRMotors);
 }
-
 void SpecificWorker::KinovaArm_openGripper()
 {
 	//implementCODE
@@ -438,39 +412,12 @@ RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm1_getToolInfo()
 
 void SpecificWorker::KinovaArm1_moveJointsWithAngle(RoboCompKinovaArm::TJointAngles angles)
 {
-    const auto& jointAngles = angles.jointAngles;
-
-    for (size_t i = 0; i < jointAngles.size() && i < kinovaArmLMotors.size(); ++i)
-    {
-        if (kinovaArmLMotors[i])
-        {
-            kinovaArmLMotors[i]->setPosition(jointAngles[i]);
-        }
-        else
-        {
-            std::cerr << "Motor nulo en la articulación " << i << std::endl;
-        }
-    }
-
-    std::cout << "AAAAA" << std::endl;
+    moveBothArmsWithAngle(angles.jointAngles, kinovaArmLMotors);
 }
 
 void SpecificWorker::KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds)
 {
-    const auto& jointSpeeds = speeds.jointSpeeds;
-
-    for (size_t i = 0; i < 7 && i < jointSpeeds.size(); ++i)
-    {
-        if (kinovaArmLMotors[i])
-        {
-            kinovaArmLMotors[i]->setPosition(INFINITY);  // Desactiva el control de posición
-            kinovaArmLMotors[i]->setVelocity(jointSpeeds[i]);
-        }
-        else
-        {
-            std::cerr << "Motor nulo en la articulación " << i << std::endl;
-        }
-    }
+    moveBothArmsWithAngle(speeds.jointSpeeds, kinovaArmLMotors);
 }
 
 void SpecificWorker::KinovaArm1_openGripper()
@@ -486,6 +433,37 @@ void SpecificWorker::KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, R
 }
 
 #pragma endregion KINOVA_ARM_L_INTERFACE
+
+void SpecificWorker::moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &jointAngles,
+                                           std::vector<webots::Motor *> armMotors) {
+    for (size_t i = 0; i < jointAngles.size() && i < armMotors.size(); ++i)
+    {
+        if (armMotors[i])
+        {
+            armMotors[i]->setPosition(jointAngles[i]);
+        }
+        else
+        {
+            cerr << "Motor nulo en la articulación " << i << endl;
+        }
+    }
+}
+
+void SpecificWorker::moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &jointSpeeds,
+                                           std::vector<webots::Motor *> armMotors) {
+    for (size_t i = 0; i < 7 && i < jointSpeeds.size(); ++i)
+    {
+        if (armMotors[i])
+        {
+            armMotors[i]->setPosition(INFINITY);  // Desactiva el control de posición
+            armMotors[i]->setVelocity(jointSpeeds[i]);
+        }
+        else
+        {
+            cerr << "Motor nulo en la articulación " << i << endl;
+        }
+    }
+}
 
 void SpecificWorker::printNotImplementedWarningMessage(const string functionName) {
     cout << "Function not implemented used: " << "[" << functionName << "]" << std::endl;
