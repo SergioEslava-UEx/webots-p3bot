@@ -287,32 +287,7 @@ RoboCompKinovaArm::TGripper SpecificWorker::KinovaArm_getGripperState()
 
 RoboCompKinovaArm::TJoints SpecificWorker::KinovaArm_getJointsState()
 {
-    RoboCompKinovaArm::TJoints ret;
-    ret.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count();
-
-    for (int i = 0; i < 7; ++i)
-    {
-        RoboCompKinovaArm::TJoint joint;
-        joint.id = i;
-
-        if (kinovaArmRSensors[i])
-            joint.angle = kinovaArmRSensors[i]->getValue();
-        else
-            joint.angle = 0.0f;
-
-        // Not available information, for now...
-        joint.velocity = 0.0f;
-        joint.torque = 0.0f;
-        joint.current = 0.0f;
-        joint.voltage = 0.0f;
-        joint.motorTemperature = 0.0f;
-        joint.coreTemperature = 0.0f;
-
-        ret.joints.push_back(joint);
-    }
-
-    return ret;
+    return getJoints(kinovaArmRSensors);
 }
 
 RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm_getToolInfo()
@@ -374,32 +349,7 @@ RoboCompKinovaArm::TGripper SpecificWorker::KinovaArm1_getGripperState()
 
 RoboCompKinovaArm::TJoints SpecificWorker::KinovaArm1_getJointsState()
 {
-    RoboCompKinovaArm::TJoints ret;
-    ret.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count();
-
-    for (int i = 0; i < 7; ++i)
-    {
-        RoboCompKinovaArm::TJoint joint;
-        joint.id = i;
-
-        if (kinovaArmLSensors[i])
-            joint.angle = kinovaArmLSensors[i]->getValue();
-        else
-            joint.angle = 0.0f;
-
-        // Not available information, for now...
-        joint.velocity = 0.0f;
-        joint.torque = 0.0f;
-        joint.current = 0.0f;
-        joint.voltage = 0.0f;
-        joint.motorTemperature = 0.0f;
-        joint.coreTemperature = 0.0f;
-
-        ret.joints.push_back(joint);
-    }
-
-    return ret;
+    return getJoints(kinovaArmLSensors);
 }
 
 RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm1_getToolInfo()
@@ -463,6 +413,34 @@ void SpecificWorker::moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &join
             cerr << "Motor nulo en la articulación " << i << endl;
         }
     }
+}
+
+RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::PositionSensor *> armSensors) {
+    RoboCompKinovaArm::TJoints ret;
+    ret.timestamp = chrono::duration_cast<chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+
+    for (int i = 0; i < 7; ++i)
+    {
+        RoboCompKinovaArm::TJoint joint;
+        joint.id = i;
+
+        if (armSensors[i])
+            joint.angle = armSensors[i]->getValue();
+        else
+            joint.angle = 0.0f;
+
+        // Not available information, for now...
+        joint.velocity = 0.0f;
+        joint.torque = 0.0f;
+        joint.current = 0.0f;
+        joint.voltage = 0.0f;
+        joint.motorTemperature = 0.0f;
+        joint.coreTemperature = 0.0f;
+
+        ret.joints.push_back(joint);
+    }
+    return ret;
 }
 
 void SpecificWorker::printNotImplementedWarningMessage(const string functionName) {

@@ -189,6 +189,8 @@ private:
     void moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &jointSpeeds, vector<webots::Motor *> armMotors);
 
     void printNotImplementedWarningMessage(const string functionName);
+
+    RoboCompKinovaArm::TJoints getJoints(std::vector<webots::PositionSensor *> armSensors);
 };
 
 #endif
