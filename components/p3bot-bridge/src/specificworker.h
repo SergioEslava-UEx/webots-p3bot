@@ -190,7 +190,7 @@ private:
 
     void printNotImplementedWarningMessage(const string functionName);
 
-    RoboCompKinovaArm::TJoints getJoints(std::vector<webots::PositionSensor *> armSensors);
+    RoboCompKinovaArm::TJoints getJoints(std::vector<webots::PositionSensor *> armSensors, std::vector<webots::Motor *> armMotors);
 };
 
 #endif

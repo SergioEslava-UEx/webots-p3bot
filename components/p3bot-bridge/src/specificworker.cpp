@@ -287,7 +287,7 @@ RoboCompKinovaArm::TGripper SpecificWorker::KinovaArm_getGripperState()
 
 RoboCompKinovaArm::TJoints SpecificWorker::KinovaArm_getJointsState()
 {
-    return getJoints(kinovaArmRSensors);
+    return getJoints(kinovaArmRSensors, kinovaArmRMotors);
 }
 
 RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm_getToolInfo()
@@ -349,7 +349,7 @@ RoboCompKinovaArm::TGripper SpecificWorker::KinovaArm1_getGripperState()
 
 RoboCompKinovaArm::TJoints SpecificWorker::KinovaArm1_getJointsState()
 {
-    return getJoints(kinovaArmLSensors);
+    return getJoints(kinovaArmLSensors, kinovaArmLMotors);
 }
 
 RoboCompKinovaArm::TToolInfo SpecificWorker::KinovaArm1_getToolInfo()
@@ -367,7 +367,7 @@ void SpecificWorker::KinovaArm1_moveJointsWithAngle(RoboCompKinovaArm::TJointAng
 
 void SpecificWorker::KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds)
 {
-    moveBothArmsWithAngle(speeds.jointSpeeds, kinovaArmLMotors);
+    moveBothArmsWithSpeed(speeds.jointSpeeds, kinovaArmLMotors);
 }
 
 void SpecificWorker::KinovaArm1_openGripper()
@@ -391,6 +391,8 @@ void SpecificWorker::moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &join
         if (armMotors[i])
         {
             armMotors[i]->setPosition(jointAngles[i]);
+            armMotors[i]->setVelocity(0.25);
+        
         }
         else
         {
@@ -415,7 +417,7 @@ void SpecificWorker::moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &join
     }
 }
 
-RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::PositionSensor *> armSensors) {
+RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::PositionSensor *> armSensors, std::vector<webots::Motor *> armMotors ) {
     RoboCompKinovaArm::TJoints ret;
     ret.timestamp = chrono::duration_cast<chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
@@ -425,13 +427,17 @@ RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::Positio
         RoboCompKinovaArm::TJoint joint;
         joint.id = i;
 
-        if (armSensors[i])
+        if (armSensors[i]){
             joint.angle = armSensors[i]->getValue();
-        else
+            joint.velocity = armMotors[i]->getVelocity();
+        }
+        else{
             joint.angle = 0.0f;
+            joint.velocity = 0.0f;
+        }
 
         // Not available information, for now...
-        joint.velocity = 0.0f;
+
         joint.torque = 0.0f;
         joint.current = 0.0f;
         joint.voltage = 0.0f;
