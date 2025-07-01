@@ -38,7 +38,14 @@
 #include <webots/Motor.hpp>
 #include <webots/Supervisor.hpp>
 #include <webots/PositionSensor.hpp>
+#include <webots/Camera.hpp>
 #include <fps/fps.h>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+#include "fixedsizedeque.h"
+#include <doublebuffer/DoubleBuffer.h>
+
+
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
@@ -79,6 +86,11 @@ public:
      * \brief Destructor for SpecificWorker.
      */
 	~SpecificWorker();
+
+    // ##########################
+    // # Camera360RGB interface #
+    // ##########################
+	RoboCompCamera360RGB::TImage Camera360RGB_getROI(int cx, int cy, int sx, int sy, int roiwidth, int roiheight);
 
     // #######################
     // # KinovaArm_R interface #
@@ -162,14 +174,30 @@ private:
     webots::Motor* motors[4];
     webots::PositionSensor* positionSensors[4];
 
-	const double SumLxLyOverRadius = (LX + LY);
-	Eigen::Matrix<double, 4, 3> wheelsMatrix;
-
     std::vector<webots::Motor*> kinovaArmRMotors;
     std::vector<webots::PositionSensor*> kinovaArmRSensors;
 
     std::vector<webots::Motor*> kinovaArmLMotors;
     std::vector<webots::PositionSensor*> kinovaArmLSensors;
+
+    webots::Camera* camera360_1;
+    webots::Camera* camera360_2;
+
+    /**
+     * Other variables
+     */
+
+    const double SumLxLyOverRadius = (LX + LY);
+    Eigen::Matrix<double, 4, 3> wheelsMatrix;
+
+    FPSCounter fps;
+
+    struct PARAMS
+    {
+        bool delay = false;
+        bool do_joystick = true;
+    };
+    PARAMS pars;
 
     // Exact names for actuators and sensors of KinovaGen3 in Webots
     std::vector<std::string> kinovaMotorNames = {
@@ -182,8 +210,20 @@ private:
             "Actuator4_sensor", "Actuator5_sensor", "Actuator6_sensor", "Actuator7_sensor"
     };
 
+    FixedSizeDeque<RoboCompCamera360RGB::TImage> camera_queue{10};
+    DoubleBuffer<RoboCompCamera360RGB::TImage, RoboCompCamera360RGB::TImage> double_buffer_360;
+
+    /**
+     * Receiving methods
+     */
+
     void receiving_robotSpeed(webots::Supervisor* _robot, double timestamp);
+    void receiving_camera360Data(webots::Camera* _camera1, webots::Camera* _camera2, double timestamp);
     double generateNoise(double stddev);
+
+    /**
+     * Moving both arms methods
+     */
 
     void moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &jointAngles, vector<webots::Motor *> armMotors);
     void moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &jointSpeeds, vector<webots::Motor *> armMotors);

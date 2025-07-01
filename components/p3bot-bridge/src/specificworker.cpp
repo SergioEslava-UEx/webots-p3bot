@@ -105,6 +105,14 @@ void SpecificWorker::initialize()
 
         kinovaArmLSensors[i]->enable(this->getPeriod("Compute"));
     }
+
+    // Camera360 initialization
+    camera360_1 = robot->getCamera("camera_360_1");
+    camera360_2 = robot->getCamera("camera_360_2");
+    if(camera360_1 && camera360_2){
+        camera360_1->enable(this->getPeriod("Compute"));
+        camera360_2->enable(this->getPeriod("Compute"));
+    }
 }
 
 
@@ -114,6 +122,8 @@ void SpecificWorker::compute()
     double now = robot->getTime() * 1000;
 
     if(robot) receiving_robotSpeed(robot, now);
+    if(camera360_1 && camera360_2) receiving_camera360Data(camera360_1, camera360_2, now);
+
     robot->step(this->getPeriod("Compute"));
 }
 
@@ -189,6 +199,59 @@ void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double tim
     pose_data.timestamp = timestamp;
 
     this->fullposeestimationpub_pubproxy->newFullPose(pose_data);
+}
+
+void SpecificWorker::receiving_camera360Data(webots::Camera* _camera1, webots::Camera* _camera2, double timestamp)
+{
+    RoboCompCamera360RGB::TImage newImage360;
+
+    // Aseguramos de que ambas cámaras tienen la misma resolución, de lo contrario, deberás manejar las diferencias.
+    if (_camera1->getWidth() != _camera2->getWidth() || _camera1->getHeight() != _camera2->getHeight())
+    {
+        std::cerr << "Error: Cameras with different resolutions." << std::endl;
+        return;
+    }
+
+    // Timestamp calculation
+    newImage360.timestamp = timestamp;
+
+    // La resolución de la nueva imagen será el doble en el ancho ya que estamos combinando las dos imágenes.
+    newImage360.width = 2 * _camera1->getWidth();
+    newImage360.height = _camera1->getHeight();
+
+    // Establecer el periodo real del compute de refresco de la imagen en milisegundos.
+    newImage360.period = fps.get_period();
+
+    const unsigned char* webotsImageData1 = _camera1->getImage();
+    const unsigned char* webotsImageData2 = _camera2->getImage();
+    cv::Mat img_1 = cv::Mat(cv::Size(_camera1->getWidth(), _camera1->getHeight()), CV_8UC4);
+    cv::Mat img_2 = cv::Mat(cv::Size(_camera2->getWidth(), _camera2->getHeight()), CV_8UC4);
+
+    img_1.data = (uchar *)webotsImageData1;
+    cv::cvtColor(img_1, img_1, cv::COLOR_RGBA2RGB);
+
+    img_2.data = (uchar *)webotsImageData2;
+    cv::cvtColor(img_2, img_2, cv::COLOR_RGBA2RGB);
+
+    cv::Mat img_final = cv::Mat(cv::Size(_camera1->getWidth()*2, _camera1->getHeight()), CV_8UC3);
+
+    img_1.copyTo(img_final(cv::Rect(0, 0, _camera1->getWidth(), _camera1->getHeight())));
+    img_2.copyTo(img_final(cv::Rect(_camera1->getWidth(), 0, _camera1->getWidth(), _camera2->getHeight())));
+
+    // Asignar la imagen RGB 360 al tipo TImage de Robocomp
+    newImage360.image.resize(img_final.total()*img_final.elemSize());
+    memcpy(&newImage360.image[0], img_final.data, img_final.total()*img_final.elemSize());
+
+    //newImage360.image = rgbImage360;
+    newImage360.compressed = false;
+
+    if(pars.delay)
+        camera_queue.push(newImage360);
+
+    // Asignamo el resultado final al atributo de clase (si tienes uno).
+    double_buffer_360.put(std::move(newImage360));
+
+    //std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - now).count() << std::endl;
 }
 
 double SpecificWorker::generateNoise(double stddev)
@@ -384,6 +447,18 @@ void SpecificWorker::KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, R
 
 #pragma endregion KINOVA_ARM_L_INTERFACE
 
+#pragma region CAMERA360RGB_INTERFACE
+
+RoboCompCamera360RGB::TImage SpecificWorker::Camera360RGB_getROI(int cx, int cy, int sx, int sy, int roiwidth, int roiheight)
+{
+	RoboCompCamera360RGB::TImage ret{};
+	//implementCODE
+
+	return ret;
+}
+
+#pragma endregion CAMERA360RGB_INTERFACE
+
 void SpecificWorker::moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &jointAngles,
                                            std::vector<webots::Motor *> armMotors) {
     for (size_t i = 0; i < jointAngles.size() && i < armMotors.size(); ++i)
@@ -458,6 +533,22 @@ void SpecificWorker::printNotImplementedWarningMessage(const string functionName
 /**************************************/
 // From the RoboCompFullPoseEstimationPub you can publish calling this methods:
 // RoboCompFullPoseEstimationPub::void this->fullposeestimationpub_pubproxy->newFullPose(RoboCompFullPoseEstimation::FullPoseEuler pose)
+
+/**************************************/
+// From the RoboCompCamera360RGB you can use this types:
+// RoboCompCamera360RGB::TRoi
+// RoboCompCamera360RGB::TImage
+
+/**************************************/
+// From the RoboCompKinovaArm you can use this types:
+// RoboCompKinovaArm::TPose
+// RoboCompKinovaArm::TAxis
+// RoboCompKinovaArm::TToolInfo
+// RoboCompKinovaArm::TGripper
+// RoboCompKinovaArm::TJoint
+// RoboCompKinovaArm::TJoints
+// RoboCompKinovaArm::TJointSpeeds
+// RoboCompKinovaArm::TJointAngles
 
 /**************************************/
 // From the RoboCompKinovaArm you can use this types:

@@ -1,12 +1,13 @@
 import "OmniRobot.idsl";
 import "FullPoseEstimationPub.idsl";
 import "KinovaArm.idsl";
+import "Camera360RGB.idsl";
 
 Component P3BotBridge
 {
     Communications
     {
-        implements OmniRobot, KinovaArm, KinovaArm;
+        implements OmniRobot, KinovaArm, KinovaArm, Camera360RGB;
         publishes FullPoseEstimationPub;
     };
     language Cpp11;

@@ -35,6 +35,7 @@ SET (SOURCES
   $ENV{ROBOCOMP}/classes/ConfigLoader/ConfigLoader.cpp
   main.cpp
   genericworker.cpp
+  camera360rgbI.cpp
   kinovaarmI.cpp
   omnirobotI.cpp
 )
@@ -42,8 +43,8 @@ SET (SOURCES
 
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_IDSL_TO_ICE(GenericBase KinovaArm FullPoseEstimationPub FullPoseEstimation OmniRobot)
-ROBOCOMP_ICE_TO_SRC(GenericBase KinovaArm FullPoseEstimationPub FullPoseEstimation OmniRobot)
+ROBOCOMP_IDSL_TO_ICE(Camera360RGB OmniRobot KinovaArm FullPoseEstimation FullPoseEstimationPub GenericBase)
+ROBOCOMP_ICE_TO_SRC(Camera360RGB OmniRobot KinovaArm FullPoseEstimation FullPoseEstimationPub GenericBase)
 SET (EXECUTABLE_OUTPUT_PATH ${RC_COMPONENT_DEVEL_PATH}/bin)
 
 # Specify construction and link process

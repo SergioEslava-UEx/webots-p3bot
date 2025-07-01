@@ -6,6 +6,7 @@ LIST(APPEND SOURCES
 # Headers set
 LIST(APPEND HEADERS
   ../src/specificworker.h
+  fixedsizedeque.h
 )
 
 
@@ -13,6 +14,9 @@ LIST(APPEND LIBS ${LIBS})
 
 # no-char8_t to avoid a problem with ICE Connection lib.
 add_definitions(-fmax-errors=1 -fno-char8_t)
+
+# Linking OpenCV
+INCLUDE( $ENV{ROBOCOMP}/cmake/modules/opencv4.cmake )
 
 # Disabling Pragma region warnings.
 add_definitions(-O3 -Wall -fmax-errors=1 -fno-char8_t -Wno-unknown-pragmas)

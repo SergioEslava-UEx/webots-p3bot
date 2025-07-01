@@ -262,7 +262,6 @@ PROTO P3Bot [
     }
     
   ] # Is `Robot.children.GROUP_WHEELS.children
-  field SFString          window          "<generic>" 
 ] 
 {
 Robot {
@@ -270,6 +269,7 @@ Robot {
   rotation IS rotation
   name IS name
   model "ROBOLAB P3Bot"
+  window "<generic>"
   children [
     DEF GROUP_ARMS Group { children IS arms }
     DEF GROUP_SENSORS Group { children IS sensors }
