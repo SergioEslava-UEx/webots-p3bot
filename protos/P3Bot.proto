@@ -263,6 +263,7 @@ PROTO P3Bot [
     }
     
   ] # Is `Robot.children.GROUP_WHEELS.children
+  field SFString          window          "<generic>" 
 ] 
 {
 Robot {
