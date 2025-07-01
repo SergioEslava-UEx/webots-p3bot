@@ -152,7 +152,6 @@ int SpecificWorker::startup_check()
 
 #pragma endregion ROBOCOMP_METHODS
 
-
 void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double timestamp)
 {
     const double* shadow_position = robotNode->getPosition();
@@ -451,10 +450,13 @@ void SpecificWorker::KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, R
 
 RoboCompCamera360RGB::TImage SpecificWorker::Camera360RGB_getROI(int cx, int cy, int sx, int sy, int roiwidth, int roiheight)
 {
-	RoboCompCamera360RGB::TImage ret{};
-	//implementCODE
+    if(pars.delay)
+    {
+        if(camera_queue.full())
+            return camera_queue.back();
+    }
 
-	return ret;
+    return double_buffer_360.get_idemp();
 }
 
 #pragma endregion CAMERA360RGB_INTERFACE
@@ -475,7 +477,6 @@ void SpecificWorker::moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &join
         }
     }
 }
-
 void SpecificWorker::moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &jointSpeeds,
                                            std::vector<webots::Motor *> armMotors) {
     for (size_t i = 0; i < 7 && i < jointSpeeds.size(); ++i)
@@ -491,7 +492,6 @@ void SpecificWorker::moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &join
         }
     }
 }
-
 RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::PositionSensor *> armSensors, std::vector<webots::Motor *> armMotors ) {
     RoboCompKinovaArm::TJoints ret;
     ret.timestamp = chrono::duration_cast<chrono::milliseconds>(
