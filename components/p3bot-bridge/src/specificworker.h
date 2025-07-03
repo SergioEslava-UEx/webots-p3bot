@@ -39,13 +39,15 @@
 #include <webots/Supervisor.hpp>
 #include <webots/PositionSensor.hpp>
 #include <webots/Camera.hpp>
-#include <fps/fps.h>
+#include <webots/Lidar.hpp>
+#include <webots/Accelerometer.hpp>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
+
 #include "fixedsizedeque.h"
 #include <doublebuffer/DoubleBuffer.h>
-
-
+#include <fps/fps.h>
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
@@ -59,7 +61,6 @@
 using namespace std;
 using namespace Eigen;
 
-#define TIME_STEP 33
 #define WHEEL_RADIUS 0.08
 #define ROTATION_INCREMENT_COEFFICIENT 6.3 // multiplier coefficient created to adjust simulated rotation into real in Webots
 #define LX 0.270  // longitudinal distance from robot's COM to wheel [m].
@@ -131,6 +132,16 @@ public:
 	void OmniRobot_setSpeedBase(float advx, float advz, float rot);
 	void OmniRobot_stopBase();
 
+    // #####################
+    // # LIDAR3D interface #
+    // #####################
+	RoboCompLidar3D::TData Lidar3D_getLidarData(std::string name, float start, float len, int decimationDegreeFactor);
+	RoboCompLidar3D::TDataImage Lidar3D_getLidarDataArrayProyectedInImage(std::string name);
+	RoboCompLidar3D::TDataCategory Lidar3D_getLidarDataByCategory(RoboCompLidar3D::TCategories categories, Ice::Long timestamp);
+	RoboCompLidar3D::TData Lidar3D_getLidarDataProyectedInImage(std::string name);
+	RoboCompLidar3D::TData Lidar3D_getLidarDataWithThreshold2d(std::string name, float distance, int decimationDegreeFactor);
+
+
 
 public slots:
 
@@ -183,6 +194,11 @@ private:
     webots::Camera* camera360_1;
     webots::Camera* camera360_2;
 
+    webots::Lidar* heliosLidar;
+
+    webots::Accelerometer* accelerometer;
+
+
     /**
      * Other variables
      */
@@ -212,6 +228,9 @@ private:
 
     FixedSizeDeque<RoboCompCamera360RGB::TImage> camera_queue{10};
     DoubleBuffer<RoboCompCamera360RGB::TImage, RoboCompCamera360RGB::TImage> double_buffer_360;
+    FixedSizeDeque<RoboCompLidar3D::TData> helios_delay_queue{10};
+
+    DoubleBuffer<RoboCompLidar3D::TData, RoboCompLidar3D::TData> double_buffer_helios;
 
     /**
      * Receiving methods
@@ -219,6 +238,7 @@ private:
 
     void receiving_robotSpeed(webots::Supervisor* _robot, double timestamp);
     void receiving_camera360Data(webots::Camera* _camera1, webots::Camera* _camera2, double timestamp);
+    void receiving_lidarData(webots::Lidar* _lidar, DoubleBuffer<RoboCompLidar3D::TData, RoboCompLidar3D::TData>& lidar_doubleBuffer, FixedSizeDeque<RoboCompLidar3D::TData>& delay_queue, double timestamp);
     double generateNoise(double stddev);
 
     /**

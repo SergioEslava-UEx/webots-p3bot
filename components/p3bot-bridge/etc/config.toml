@@ -10,8 +10,9 @@ FullPoseEstimationPubPrefix = ""
 [Endpoints]
 # Endpoints for implements interfaces
 Camera360RGB = "tcp -p 0"
-KinovaArm1 = "tcp -p 0"
 KinovaArm = "tcp -p 0"
+KinovaArm1 = "tcp -p 0"
+Lidar3D = "tcp -p 0"
 OmniRobot = "tcp -p 0"
 
 

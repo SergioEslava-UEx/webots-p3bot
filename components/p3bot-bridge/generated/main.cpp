@@ -79,6 +79,7 @@
 
 #include <camera360rgbI.h>
 #include <kinovaarmI.h>
+#include <lidar3dI.h>
 #include <omnirobotI.h>
 
 #include <Camera360RGB.h>
@@ -86,6 +87,7 @@
 #include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
 #include <KinovaArm.h>
+#include <Lidar3D.h>
 #include <OmniRobot.h>
 
 //#define USE_QTGUI
@@ -268,6 +270,9 @@ int P3BotBridge::run(int argc, char* argv[])
 		implement<KinovaArmI>(communicator(),
 		                    configLoader.get<std::string>("Endpoints.KinovaArm1"), 
 		                    "kinovaarm1", worker,  1);
+		implement<Lidar3DI>(communicator(),
+		                    configLoader.get<std::string>("Endpoints.Lidar3D"), 
+		                    "lidar3d", worker,  0);
 		implement<OmniRobotI>(communicator(),
 		                    configLoader.get<std::string>("Endpoints.OmniRobot"), 
 		                    "omnirobot", worker,  0);

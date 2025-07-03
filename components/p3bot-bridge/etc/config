@@ -5,13 +5,15 @@ Proxies.TopicManager = "IceStorm/TopicManager:default -p 9999"
 Proxies.FullPoseEstimationPubPrefix = ""
 
 # Endpoints for implements interfaces
+Endpoints.Lidar3D = "tcp -p 10008"
 Endpoints.Camera360RGB = "tcp -p 10007"
 Endpoints.KinovaArm1 = "tcp -p 10006"
 Endpoints.KinovaArm = "tcp -p 10005"
 Endpoints.OmniRobot = "tcp -p 10004"
 
 
-Period.Compute = 100
+
+Period.Compute = 33
 Period.Emergency = 500
 
 Ice.Warn.Connections = "0"

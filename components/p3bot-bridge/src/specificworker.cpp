@@ -60,7 +60,6 @@ SpecificWorker::~SpecificWorker()
 void SpecificWorker::initialize()
 {
     std::cout << "Initialize worker" << std::endl;
-    this->setPeriod("Compute",TIME_STEP);
 
     robot = new webots::Supervisor();
     robotNode = robot->getSelf();
@@ -113,8 +112,16 @@ void SpecificWorker::initialize()
         camera360_1->enable(this->getPeriod("Compute"));
         camera360_2->enable(this->getPeriod("Compute"));
     }
-}
 
+    // Helios Lidar initialization
+    heliosLidar = robot->getLidar("helios");
+    if(heliosLidar) heliosLidar->enable(this->getPeriod("Compute"));
+
+    // Accelerometer initialization
+    accelerometer = robot->getAccelerometer("accelerometer");
+    if(accelerometer) accelerometer->enable(this->getPeriod("Compute"));
+
+}
 
 
 void SpecificWorker::compute()
@@ -123,8 +130,11 @@ void SpecificWorker::compute()
 
     if(robot) receiving_robotSpeed(robot, now);
     if(camera360_1 && camera360_2) receiving_camera360Data(camera360_1, camera360_2, now);
+    if(heliosLidar) receiving_lidarData(heliosLidar, double_buffer_helios,  helios_delay_queue, now);
+
 
     robot->step(this->getPeriod("Compute"));
+    fps.print("FPS:");
 }
 
 
@@ -251,6 +261,73 @@ void SpecificWorker::receiving_camera360Data(webots::Camera* _camera1, webots::C
     double_buffer_360.put(std::move(newImage360));
 
     //std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - now).count() << std::endl;
+}
+
+void SpecificWorker::receiving_lidarData(webots::Lidar* _lidar, DoubleBuffer<RoboCompLidar3D::TData, RoboCompLidar3D::TData> &_lidar3dData, FixedSizeDeque<RoboCompLidar3D::TData>& delay_queue, double timestamp)
+{
+    if (!_lidar) { std::cout << "No lidar available." << std::endl; return; }
+
+    const float *rangeImage = _lidar->getRangeImage();
+    int horizontalResolution = _lidar->getHorizontalResolution();
+    int verticalResolution = _lidar->getNumberOfLayers();
+    double fov = _lidar->getFov();
+    double angleResolution = fov / horizontalResolution;
+    float verticalFov = 2.8;
+
+    RoboCompLidar3D::TData newLidar3dData;
+
+    // General Lidar values
+    newLidar3dData.timestamp = timestamp;
+    newLidar3dData.period = fps.get_period();
+
+    if(!rangeImage) { std::cout << "Lidar data empty." << std::endl; return; }
+
+    for (int j = 0; j < verticalResolution; ++j) {
+        for (int i = 0; i < horizontalResolution; ++i) {
+            int index = j * horizontalResolution + i;
+
+            //distance meters to millimeters
+            const float distance = rangeImage[index]; //Meters
+
+            //TODO rotacion del eje y con el M_PI, solucionar
+            float horizontalAngle = M_PI - i * angleResolution - fov / 2;
+
+            float verticalAngle = M_PI + j * (verticalFov / verticalResolution) - verticalFov / 2;
+
+            //Calculate Cartesian co-ordinates and rectify axis positions
+            Eigen::Vector3f lidar_point(
+                    distance * cos(horizontalAngle) * cos(verticalAngle),
+                    distance * sin(horizontalAngle) * cos(verticalAngle),
+                    distance * sin(verticalAngle));
+
+            if (not (std::isinf(lidar_point.x()) or std::isinf(lidar_point.y()) or std::isinf(lidar_point.z())))
+            {
+                if (not (verticalAngle > 4.10152 or verticalAngle <2.87979)) //down limit+, uper limit-, horizon line is PI
+                {
+                    RoboCompLidar3D::TPoint point;
+
+                    point.x = lidar_point.x();
+                    point.y = lidar_point.y();
+                    point.z = lidar_point.z();
+
+                    point.r = lidar_point.norm();  // distancia radial
+                    point.phi = horizontalAngle;  // ángulo horizontal // -x para hacer [PI, -PI] y no [-PI, PI]
+                    point.theta = verticalAngle;  // ángulo vertical
+                    point.distance2d = std::hypot(lidar_point.x(),lidar_point.y());  // distancia en el plano xy
+
+                    newLidar3dData.points.push_back(point);
+                }
+            }
+        }
+    }
+    //Points order to angles
+    std::ranges::sort(newLidar3dData.points, {}, &RoboCompLidar3D::TPoint::phi);
+
+    //Is it necessary to use two lidar queues? One for each lidaR?
+    if(pars.delay)
+        delay_queue.push(newLidar3dData);
+
+    _lidar3dData.put(std::move(newLidar3dData));
 }
 
 double SpecificWorker::generateNoise(double stddev)
@@ -461,6 +538,44 @@ RoboCompCamera360RGB::TImage SpecificWorker::Camera360RGB_getROI(int cx, int cy,
 
 #pragma endregion CAMERA360RGB_INTERFACE
 
+#pragma region LIDAR3D_INTERFACE
+
+RoboCompLidar3D::TData SpecificWorker::Lidar3D_getLidarData(std::string name, float start, float len, int decimationDegreeFactor)
+{
+    return (pars.delay && helios_delay_queue.full()) ? helios_delay_queue.back() : double_buffer_helios.get_idemp();
+}
+
+RoboCompLidar3D::TDataImage SpecificWorker::Lidar3D_getLidarDataArrayProyectedInImage(std::string name)
+{
+    RoboCompLidar3D::TDataImage ret{};
+    printNotImplementedWarningMessage("Lidar3D_getLidarDataArrayProyectedInImage");
+    return ret;
+}
+
+RoboCompLidar3D::TDataCategory SpecificWorker::Lidar3D_getLidarDataByCategory(RoboCompLidar3D::TCategories categories, Ice::Long timestamp)
+{
+    RoboCompLidar3D::TDataCategory ret{};
+    printNotImplementedWarningMessage("Lidar3D_getLidarDataByCategory");
+    return ret;
+}
+
+RoboCompLidar3D::TData SpecificWorker::Lidar3D_getLidarDataProyectedInImage(std::string name)
+{
+	RoboCompLidar3D::TData ret{};
+    printNotImplementedWarningMessage("Lidar3D_getLidarDataProyectedInImage");
+	return ret;
+}
+
+RoboCompLidar3D::TData SpecificWorker::Lidar3D_getLidarDataWithThreshold2d(std::string name, float distance, int decimationDegreeFactor)
+{
+	RoboCompLidar3D::TData ret{};
+    printNotImplementedWarningMessage("Lidar3D_getLidarDataWithThreshold2d");
+	return ret;
+}
+
+#pragma endregion LIDAR3D_INTERFACE
+
+
 void SpecificWorker::moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &jointAngles,
                                            std::vector<webots::Motor *> armMotors) {
     for (size_t i = 0; i < jointAngles.size() && i < armMotors.size(); ++i)
@@ -560,6 +675,13 @@ void SpecificWorker::printNotImplementedWarningMessage(const string functionName
 // RoboCompKinovaArm::TJoints
 // RoboCompKinovaArm::TJointSpeeds
 // RoboCompKinovaArm::TJointAngles
+
+/**************************************/
+// From the RoboCompLidar3D you can use this types:
+// RoboCompLidar3D::TPoint
+// RoboCompLidar3D::TDataImage
+// RoboCompLidar3D::TData
+// RoboCompLidar3D::TDataCategory
 
 /**************************************/
 // From the RoboCompOmniRobot you can use this types:

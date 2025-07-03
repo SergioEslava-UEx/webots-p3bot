@@ -37,6 +37,7 @@
 #include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
 #include <KinovaArm.h>
+#include <Lidar3D.h>
 #include <OmniRobot.h>
 
 #define BASIC_PERIOD 100
@@ -83,6 +84,12 @@ public:
 	virtual void KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds) = 0;
 	virtual void KinovaArm1_openGripper() = 0;
 	virtual void KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo) = 0;
+
+	virtual RoboCompLidar3D::TData Lidar3D_getLidarData(std::string name, float start, float len, int decimationDegreeFactor) = 0;
+	virtual RoboCompLidar3D::TDataImage Lidar3D_getLidarDataArrayProyectedInImage(std::string name) = 0;
+	virtual RoboCompLidar3D::TDataCategory Lidar3D_getLidarDataByCategory(RoboCompLidar3D::TCategories categories, Ice::Long timestamp) = 0;
+	virtual RoboCompLidar3D::TData Lidar3D_getLidarDataProyectedInImage(std::string name) = 0;
+	virtual RoboCompLidar3D::TData Lidar3D_getLidarDataWithThreshold2d(std::string name, float distance, int decimationDegreeFactor) = 0;
 
 	virtual void OmniRobot_correctOdometer(int x, int z, float alpha) = 0;
 	virtual void OmniRobot_getBasePose(int &x, int &z, float &alpha) = 0;
