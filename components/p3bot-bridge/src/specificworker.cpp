@@ -167,6 +167,18 @@ void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double tim
     const double* shadow_position = robotNode->getPosition();
     const double* shadow_orientation = robotNode->getOrientation();
     const double* shadow_velocity = robotNode->getVelocity();
+
+    double r11 = shadow_orientation[0], r12 = shadow_orientation[1], r13 = shadow_orientation[2];
+    double r21 = shadow_orientation[3], r22 = shadow_orientation[4], r23 = shadow_orientation[5];
+    double r31 = shadow_orientation[6], r32 = shadow_orientation[7], r33 = shadow_orientation[8];
+
+    // Yaw (Z)
+    double rz = atan2(r21, r11);
+    // Pitch (Y)
+    double ry = atan2(-r31, sqrt(r32*r32 + r33*r33));
+    // Roll (X)
+    double rx = atan2(r32, r33);
+
     float orientation = atan2(shadow_orientation[1], shadow_orientation[0]) - M_PI_2;
 
     Eigen::Matrix2f rt_rotation_matrix;
@@ -177,35 +189,39 @@ void SpecificWorker::receiving_robotSpeed(webots::Supervisor* _robot, double tim
     Eigen::Vector2f shadow_velocity_2d(shadow_velocity[1], shadow_velocity[0]);
     Eigen::Vector2f rt_rotation_matrix_inv = rt_rotation_matrix.inverse() * shadow_velocity_2d;
 
-    // Raw speeds
-    double velocidad_x = 0.1; // mm/s
-    double velocidad_y = 0.1;
-    double alpha = 0.075;  // rads/s
+    // Velocidades puras en mm/s y rad/s
+    double velocidad_x = 0.1; // Ejemplo: 100 mm/s
+    double velocidad_y = 0.1; // Ejemplo: 150 mm/s
+    double alpha = 0.075; // Ejemplo: 0.05 rad/s
 
-    // Noise standard deviation (example: 5% of speed values)
+    // Desviación estándar del ruido (ejemplo: 5% del valor de las velocidades)
     double ruido_stddev_x = 0.05 * velocidad_x;
     double ruido_stddev_y = 0.05 * velocidad_y;
     double ruido_stddev_alpha = 0.05 * alpha;
 
     RoboCompFullPoseEstimation::FullPoseEuler pose_data;
 
-    // Position
-    pose_data.x = -shadow_position[1];  // metros → mm
-    pose_data.y = shadow_position[0];
-    pose_data.z = shadow_position[2];
+    // Posición
+    pose_data.x = -shadow_position[1] * 1000;  // metros → mm
+    pose_data.y = shadow_position[0] * 1000;
+    pose_data.z = shadow_position[2] * 1000;
 
-    // Orientation (Euler in rads) 2D
-    pose_data.rx = 0.0;
-    pose_data.ry = 0.0;
-    pose_data.rz = orientation;  // Calculated Z-Axis
+    // Orientación (Euler en radianes) 2D
+    pose_data.rx = rx;
+    pose_data.ry = ry;
+    pose_data.rz = rz;
 
-    pose_data.vx = -rt_rotation_matrix_inv(0) + generateNoise(ruido_stddev_x);
-    pose_data.vy = -rt_rotation_matrix_inv(1) + generateNoise(ruido_stddev_y);
+    pose_data.vx = rt_rotation_matrix_inv(1) + generateNoise(ruido_stddev_y);
+    pose_data.vy = -rt_rotation_matrix_inv(0) + generateNoise(ruido_stddev_x);
     pose_data.vz = 0;
     pose_data.vrx = 0;
     pose_data.vry = 0;
     pose_data.vrz = shadow_velocity[5] + generateNoise(ruido_stddev_alpha);
     pose_data.timestamp = timestamp;
+
+
+    // std::cout << "pose:" << pose_data.x << " " << pose_data.y << " " << pose_data.z <<
+    //                 " rot: "<< pose_data.rx << " " << pose_data.ry << " " << pose_data.rz << std::endl;
 
     this->fullposeestimationpub_pubproxy->newFullPose(pose_data);
 }
@@ -377,12 +393,14 @@ void SpecificWorker::OmniRobot_setSpeedBase(float advx, float advz, float rot)
     advz *= 0.001;
     advx *= 0.001;
 
-    Eigen::Vector3d input_speeds(advx, advz, rot);
+    Eigen::Vector3d input_speeds(advz, advx, rot);
     Eigen::Vector4d wheel_speeds = wheelsMatrix * input_speeds;
 
-    std::cout << "wheelsMatrix:\n" << wheelsMatrix << std::endl;
-    std::cout << "Input speeds: [" << advx << ", " << advz << ", " << rot << "]\n";
-    std::cout << "Computed wheel speeds:\n" << wheel_speeds.transpose() << std::endl;    for (int i = 0; i < 4; i++)
+    // std::cout << "wheelsMatrix:\n" << wheelsMatrix << std::endl;
+    // std::cout << "Input speeds: [" << advz << ", " << advx << ", " << rot << "]\n";
+    // std::cout << "Computed wheel speeds:\n" << wheel_speeds.transpose() << std::endl;
+
+    for (int i = 0; i < 4; i++)
     {
         motors[i]->setVelocity(wheel_speeds[i]);
     }
@@ -577,65 +595,109 @@ RoboCompLidar3D::TData SpecificWorker::Lidar3D_getLidarDataWithThreshold2d(std::
 
 
 void SpecificWorker::moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &jointAngles,
-                                           std::vector<webots::Motor *> armMotors) {
-    for (size_t i = 0; i < jointAngles.size() && i < armMotors.size(); ++i)
+                                         std::vector<webots::Motor *> &armMotors) 
+{
+    const size_t loop_limit = std::min(jointAngles.size(), armMotors.size());
+    
+    #pragma omp simd
+    for (size_t i = 0; i < loop_limit; ++i)
     {
         if (armMotors[i])
         {
+            // Pre-calculate velocity to avoid multiple function calls
+            constexpr float velocity = 0.25f;
+            
+            // Set position and velocity in one go if API allows
             armMotors[i]->setPosition(jointAngles[i]);
-            armMotors[i]->setVelocity(0.25);
-        
+            armMotors[i]->setVelocity(velocity);
         }
         else
         {
-            cerr << "Motor nulo en la articulación " << i << endl;
+            {
+                std::cerr << "Motor nulo en la articulación " << i << std::endl;
+            }
         }
     }
 }
 void SpecificWorker::moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &jointSpeeds,
-                                           std::vector<webots::Motor *> armMotors) {
-    for (size_t i = 0; i < 7 && i < jointSpeeds.size(); ++i)
+                                         std::vector<webots::Motor *> &armMotors) 
+{
+    constexpr size_t joint_limit = 7; // Asumiendo que 7 es el máximo de articulaciones
+    const size_t loop_limit = std::min(jointSpeeds.size(), joint_limit);
+    
+    auto t1 = std::chrono::high_resolution_clock::now();
+    
+    #pragma omp simd
+    for (size_t i = 0; i < loop_limit; ++i)
     {
         if (armMotors[i])
         {
-            armMotors[i]->setPosition(INFINITY);  // Desactiva el control de posición
+            // Desactiva el control de posición y establece velocidad
+            armMotors[i]->setPosition(INFINITY);
             armMotors[i]->setVelocity(jointSpeeds[i]);
         }
         else
         {
-            cerr << "Motor nulo en la articulación " << i << endl;
+            {
+                std::cerr << "Motor nulo en la articulación " << i << std::endl;
+            }
         }
     }
+    
+    auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::high_resolution_clock::now() - t1).count();
+    
+    std::cout << "set " << diff << " ms" << std::endl << std::flush;
 }
-RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::PositionSensor *> armSensors, std::vector<webots::Motor *> armMotors ) {
-    RoboCompKinovaArm::TJoints ret;
-    ret.timestamp = chrono::duration_cast<chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch()).count();
 
-    for (int i = 0; i < 7; ++i)
+RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::PositionSensor *> &armSensors, 
+                                                    std::vector<webots::Motor *> &armMotors) 
+{
+    constexpr size_t joint_limit = 7; 
+    RoboCompKinovaArm::TJoints ret;
+    ret.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()).count();
+    
+    ret.joints.resize(joint_limit); // Pre-reserva espacio para 7 articulaciones
+    
+    #pragma omp simd
+    for (int i = 0; i < joint_limit; ++i)
     {
         RoboCompKinovaArm::TJoint joint;
         joint.id = i;
-
-        if (armSensors[i]){
+        
+        if (armSensors[i] && armMotors[i])
+        {
             joint.angle = armSensors[i]->getValue();
             joint.velocity = armMotors[i]->getVelocity();
         }
-        else{
+        else
+        {
             joint.angle = 0.0f;
             joint.velocity = 0.0f;
+            
+            {
+                std::cerr << "Sensor o motor nulo en la articulación " << i << std::endl;
+            }
         }
-
-        // Not available information, for now...
-
+        
+        // Valores por defecto
         joint.torque = 0.0f;
         joint.current = 0.0f;
         joint.voltage = 0.0f;
         joint.motorTemperature = 0.0f;
         joint.coreTemperature = 0.0f;
-
-        ret.joints.push_back(joint);
+        
+        ret.joints[i] = std::move(joint); // Usamos move semantics
     }
+    
+    auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::high_resolution_clock::now() - 
+               std::chrono::time_point<std::chrono::high_resolution_clock>(
+               std::chrono::milliseconds(ret.timestamp))).count();
+    
+    std::cout << "get " << diff << " ms" << std::endl << std::flush;
+    
     return ret;
 }
 

@@ -12,8 +12,7 @@ Endpoints.KinovaArm = "tcp -p 10005"
 Endpoints.OmniRobot = "tcp -p 10004"
 
 
-
-Period.Compute = 33
+Period.Compute = 5
 Period.Emergency = 500
 
 Ice.Warn.Connections = "0"
