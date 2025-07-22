@@ -245,8 +245,8 @@ private:
      * Moving both arms methods
      */
 
-    void moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &jointAngles, vector<webots::Motor *> armMotors);
-    void moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &jointSpeeds, vector<webots::Motor *> armMotors);
+    void moveBothArmsWithAngle(const RoboCompKinovaArm::Angles &jointAngles, std::vector<webots::Motor *> &armMotors);
+    void moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &jointSpeeds, std::vector<webots::Motor *> &armMotors);
 
     void printNotImplementedWarningMessage(const string functionName);
 
