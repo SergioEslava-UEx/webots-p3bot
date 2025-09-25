@@ -4,6 +4,10 @@ Proxies.TopicManager = "IceStorm/TopicManager:default -p 9999"
 # Proxies for publishes interfaces
 Proxies.FullPoseEstimationPubPrefix = ""
 
+# Endpoints for subscriptions interfaces
+Endpoints.JoystickAdapterTopic = "tcp -p 0"
+Endpoints.JoystickAdapterPrefix = ""
+
 # Endpoints for implements interfaces
 Endpoints.Lidar3D = "tcp -p 10008"
 Endpoints.Camera360RGB = "tcp -p 10007"

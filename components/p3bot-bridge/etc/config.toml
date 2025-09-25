@@ -8,6 +8,10 @@ FullPoseEstimationPubPrefix = ""
 
 
 [Endpoints]
+# Endpoints for subscriptions interfaces
+JoystickAdapterTopic = "tcp -p 0"
+JoystickAdapterPrefix = ""
+
 # Endpoints for implements interfaces
 Camera360RGB = "tcp -p 0"
 KinovaArm = "tcp -p 0"

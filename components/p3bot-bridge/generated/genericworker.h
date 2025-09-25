@@ -36,6 +36,7 @@
 #include <FullPoseEstimation.h>
 #include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
+#include <JoystickAdapter.h>
 #include <KinovaArm.h>
 #include <Lidar3D.h>
 #include <OmniRobot.h>
@@ -74,6 +75,7 @@ public:
 	virtual void KinovaArm_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds) = 0;
 	virtual void KinovaArm_openGripper() = 0;
 	virtual void KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo) = 0;
+	virtual bool KinovaArm_setGripperPos(float pos) = 0;
 
 	virtual bool KinovaArm1_closeGripper() = 0;
 	virtual RoboCompKinovaArm::TPose KinovaArm1_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo) = 0;
@@ -84,6 +86,7 @@ public:
 	virtual void KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds) = 0;
 	virtual void KinovaArm1_openGripper() = 0;
 	virtual void KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo) = 0;
+	virtual bool KinovaArm1_setGripperPos(float pos) = 0;
 
 	virtual RoboCompLidar3D::TData Lidar3D_getLidarData(std::string name, float start, float len, int decimationDegreeFactor) = 0;
 	virtual RoboCompLidar3D::TDataImage Lidar3D_getLidarDataArrayProyectedInImage(std::string name) = 0;
@@ -99,6 +102,8 @@ public:
 	virtual void OmniRobot_setOdometerPose(int x, int z, float alpha) = 0;
 	virtual void OmniRobot_setSpeedBase(float advx, float advz, float rot) = 0;
 	virtual void OmniRobot_stopBase() = 0;
+
+	virtual void JoystickAdapter_sendData (RoboCompJoystickAdapter::TData data) = 0;
 
 
 protected:

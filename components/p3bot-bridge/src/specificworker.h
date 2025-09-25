@@ -105,6 +105,7 @@ public:
 	void KinovaArm_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds);
 	void KinovaArm_openGripper();
 	void KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo);
+	bool KinovaArm_setGripperPos(float pos);
 
 
     // #######################
@@ -119,6 +120,7 @@ public:
 	void KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds);
 	void KinovaArm1_openGripper();
 	void KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo);
+	bool KinovaArm1_setGripperPos(float pos);
 
     // #######################
     // # OMNIROBOT interface #
@@ -140,6 +142,11 @@ public:
 	RoboCompLidar3D::TDataCategory Lidar3D_getLidarDataByCategory(RoboCompLidar3D::TCategories categories, Ice::Long timestamp);
 	RoboCompLidar3D::TData Lidar3D_getLidarDataProyectedInImage(std::string name);
 	RoboCompLidar3D::TData Lidar3D_getLidarDataWithThreshold2d(std::string name, float distance, int decimationDegreeFactor);
+
+    // #####################
+    // # JoystickAdapter interface #
+    // #####################
+	void JoystickAdapter_sendData(RoboCompJoystickAdapter::TData data);
 
 
 

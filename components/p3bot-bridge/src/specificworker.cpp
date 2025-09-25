@@ -476,6 +476,14 @@ void SpecificWorker::KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, Ro
 
 }
 
+bool SpecificWorker::KinovaArm_setGripperPos(float pos)
+{
+	bool ret{};
+	//implementCODE
+
+	return ret;
+}
+
 #pragma endregion KINOVA_ARM_R_INTERFACE
 
 #pragma region KINOVA_ARM_L_INTERFACE
@@ -537,6 +545,14 @@ void SpecificWorker::KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, R
 {
 	//implementCODE
 
+}
+
+bool SpecificWorker::KinovaArm1_setGripperPos(float pos)
+{
+	bool ret{};
+	//implementCODE
+
+	return ret;
 }
 
 #pragma endregion KINOVA_ARM_L_INTERFACE
@@ -705,7 +721,42 @@ void SpecificWorker::printNotImplementedWarningMessage(const string functionName
     cout << "Function not implemented used: " << "[" << functionName << "]" << std::endl;
 }
 
+#pragma region JoystickAdapter
 
+//SUBSCRIPTION to sendData method from JoystickAdapter interface
+void SpecificWorker::JoystickAdapter_sendData(RoboCompJoystickAdapter::TData data)
+{
+#ifdef HIBERNATION_ENABLED
+    hibernation = true;
+#endif
+
+    // Declaration of the structure to be filled
+    float side=0, adv=0, rot=0;
+    /*
+    // Iterate through the list of buttons in the data structure
+    for (RoboCompJoystickAdapter::ButtonParams button : data.buttons) {
+        // Currently does nothing with the buttons
+    }
+    */
+
+    // Iterate through the list of axes in the data structure
+    for (RoboCompJoystickAdapter::AxisParams axis : data.axes)
+    {
+        // Process the axis according to its name
+        if(axis.name == "rotate")
+            rot = axis.value;
+        else if (axis.name == "advance")
+            adv = axis.value;
+        else if (axis.name == "side")
+            side = -axis.value;
+        else
+            cout << "[ JoystickAdapter ] Warning: Using a non-defined axes (" << axis.name << ")." << endl;
+    }
+    if(pars.do_joystick)
+        OmniRobot_setSpeedBase(side, adv, rot);
+}
+
+#pragma endregion JoystickAdapter
 
 /**************************************/
 // From the RoboCompFullPoseEstimationPub you can publish calling this methods:
@@ -748,4 +799,10 @@ void SpecificWorker::printNotImplementedWarningMessage(const string functionName
 /**************************************/
 // From the RoboCompOmniRobot you can use this types:
 // RoboCompOmniRobot::TMechParams
+
+/**************************************/
+// From the RoboCompJoystickAdapter you can use this types:
+// RoboCompJoystickAdapter::AxisParams
+// RoboCompJoystickAdapter::ButtonParams
+// RoboCompJoystickAdapter::TData
 
