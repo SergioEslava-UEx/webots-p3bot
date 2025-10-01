@@ -36,6 +36,7 @@ SET (SOURCES
   main.cpp
   genericworker.cpp
   camera360rgbI.cpp
+  camerargbdsimpleI.cpp
   kinovaarmI.cpp
   lidar3dI.cpp
   omnirobotI.cpp
@@ -45,8 +46,8 @@ SET (SOURCES
 
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_IDSL_TO_ICE(GenericBase JoystickAdapter KinovaArm OmniRobot FullPoseEstimation Camera360RGB Lidar3D FullPoseEstimationPub)
-ROBOCOMP_ICE_TO_SRC(GenericBase JoystickAdapter KinovaArm OmniRobot FullPoseEstimation Camera360RGB Lidar3D FullPoseEstimationPub)
+ROBOCOMP_IDSL_TO_ICE(FullPoseEstimation Lidar3D OmniRobot FullPoseEstimationPub CameraRGBDSimple JoystickAdapter Camera360RGB GenericBase KinovaArm)
+ROBOCOMP_ICE_TO_SRC(FullPoseEstimation Lidar3D OmniRobot FullPoseEstimationPub CameraRGBDSimple JoystickAdapter Camera360RGB GenericBase KinovaArm)
 SET (EXECUTABLE_OUTPUT_PATH ${RC_COMPONENT_DEVEL_PATH}/bin)
 
 # Specify construction and link process

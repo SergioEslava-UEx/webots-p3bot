@@ -78,12 +78,14 @@
 #include "../src/specificworker.h"
 
 #include <camera360rgbI.h>
+#include <camerargbdsimpleI.h>
 #include <kinovaarmI.h>
 #include <lidar3dI.h>
 #include <omnirobotI.h>
 #include <joystickadapterI.h>
 
 #include <Camera360RGB.h>
+#include <CameraRGBDSimple.h>
 #include <FullPoseEstimation.h>
 #include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
@@ -328,6 +330,9 @@ int P3BotBridge::run(int argc, char* argv[])
 		implement<Camera360RGBI>(communicator(),
 		                    configLoader.get<std::string>("Endpoints.Camera360RGB"), 
 		                    "camera360rgb", worker,  0);
+		implement<CameraRGBDSimpleI>(communicator(),
+		                    configLoader.get<std::string>("Endpoints.CameraRGBDSimple"), 
+		                    "camerargbdsimple", worker,  0);
 		implement<KinovaArmI>(communicator(),
 		                    configLoader.get<std::string>("Endpoints.KinovaArm"), 
 		                    "kinovaarm", worker,  0);

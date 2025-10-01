@@ -18,6 +18,8 @@
  */
 #include "specificworker.h"
 
+#include "rapplication/rapplication.h"
+
 #pragma region ROBOCOMP_METHODS
 
 SpecificWorker::SpecificWorker(const ConfigLoader& configLoader, TuplePrx tprx, bool startup_check) : GenericWorker(configLoader, tprx)
@@ -113,6 +115,12 @@ void SpecificWorker::initialize()
         camera360_2->enable(this->getPeriod("Compute"));
     }
 
+    // Zed initialization
+    zed = robot->getCamera("zed");
+    zedRangeFinder = robot->getRangeFinder("zed-ranger");
+    if(zed) zed->enable(this->getPeriod("Compute"));
+    if(zedRangeFinder) zedRangeFinder->enable(this->getPeriod("Compute"));
+
     // Helios Lidar initialization
     heliosLidar = robot->getLidar("helios");
     if(heliosLidar) heliosLidar->enable(this->getPeriod("Compute"));
@@ -131,13 +139,16 @@ void SpecificWorker::compute()
     if(robot) receiving_robotSpeed(robot, now);
     if(camera360_1 && camera360_2) receiving_camera360Data(camera360_1, camera360_2, now);
     if(heliosLidar) receiving_lidarData(heliosLidar, double_buffer_helios,  helios_delay_queue, now);
-
+    if(zedRangeFinder && zed) receiving_cameraRGBD(zed, zedRangeFinder, zedImage);
 
     robot->step(this->getPeriod("Compute"));
     fps.print("FPS:");
 }
 
+void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera, webots::RangeFinder* _rangeFinder, RoboCompCameraRGBDSimple::TRGBD& _image)
+{
 
+}
 
 void SpecificWorker::emergency()
 {
@@ -720,6 +731,40 @@ RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::Positio
 void SpecificWorker::printNotImplementedWarningMessage(const string functionName) {
     cout << "Function not implemented used: " << "[" << functionName << "]" << std::endl;
 }
+
+#pragma region CameraRGBDSimple
+
+RoboCompCameraRGBDSimple::TRGBD SpecificWorker::CameraRGBDSimple_getAll(std::string camera)
+{
+	return zedImage;
+}
+
+RoboCompCameraRGBDSimple::TDepth SpecificWorker::CameraRGBDSimple_getDepth(std::string camera)
+{
+	RoboCompCameraRGBDSimple::TDepth ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompCameraRGBDSimple::TImage SpecificWorker::CameraRGBDSimple_getImage(std::string camera)
+{
+	RoboCompCameraRGBDSimple::TImage ret{};
+	//implementCODE
+
+	return ret;
+}
+
+RoboCompCameraRGBDSimple::TPoints SpecificWorker::CameraRGBDSimple_getPoints(std::string camera)
+{
+	RoboCompCameraRGBDSimple::TPoints ret{};
+	//implementCODE
+
+	return ret;
+}
+
+#pragma endregion CameraRGBDSimple
+
 
 #pragma region JoystickAdapter
 

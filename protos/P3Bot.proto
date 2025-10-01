@@ -45,6 +45,24 @@ PROTO P3Bot [
         }
       ]
     }
+    Camera {
+          translation 0.01 0 1.32
+          children[
+            RangeFinder{
+              name "zed-ranger"
+              fieldOfView 2.09
+              width 1920
+              height 1080
+              maxRange 20
+            }
+          ]
+          rotation 0 0 -1 0
+          name "zed"
+          fieldOfView 2.09
+          width 1920
+          height 1080
+          projection "planar"
+    }
     Lidar {
       translation -0.0535264 0.00230873 1.24
       rotation 0 0 1 0.34

@@ -4,12 +4,13 @@ import "KinovaArm.idsl";
 import "Camera360RGB.idsl";
 import "Lidar3D.idsl";
 import "JoystickAdapter.idsl";
+import "CameraRGBDSimple.idsl";
 
 Component P3BotBridge
 {
     Communications
     {
-        implements OmniRobot, KinovaArm, KinovaArm, Camera360RGB, Lidar3D;
+        implements OmniRobot, KinovaArm, KinovaArm, Camera360RGB, Lidar3D, CameraRGBDSimple;
         subscribesTo JoystickAdapter;
         publishes FullPoseEstimationPub;
     };

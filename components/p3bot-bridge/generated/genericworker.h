@@ -33,6 +33,7 @@
 
 
 #include <Camera360RGB.h>
+#include <CameraRGBDSimple.h>
 #include <FullPoseEstimation.h>
 #include <FullPoseEstimationPub.h>
 #include <GenericBase.h>
@@ -66,6 +67,11 @@ public:
 
 	virtual RoboCompCamera360RGB::TImage Camera360RGB_getROI(int cx, int cy, int sx, int sy, int roiwidth, int roiheight) = 0;
 
+	virtual RoboCompCameraRGBDSimple::TRGBD CameraRGBDSimple_getAll(std::string camera) = 0;
+	virtual RoboCompCameraRGBDSimple::TDepth CameraRGBDSimple_getDepth(std::string camera) = 0;
+	virtual RoboCompCameraRGBDSimple::TImage CameraRGBDSimple_getImage(std::string camera) = 0;
+	virtual RoboCompCameraRGBDSimple::TPoints CameraRGBDSimple_getPoints(std::string camera) = 0;
+
 	virtual bool KinovaArm_closeGripper() = 0;
 	virtual RoboCompKinovaArm::TPose KinovaArm_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo) = 0;
 	virtual RoboCompKinovaArm::TGripper KinovaArm_getGripperState() = 0;
@@ -75,7 +81,6 @@ public:
 	virtual void KinovaArm_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds) = 0;
 	virtual void KinovaArm_openGripper() = 0;
 	virtual void KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo) = 0;
-	virtual bool KinovaArm_setGripperPos(float pos) = 0;
 
 	virtual bool KinovaArm1_closeGripper() = 0;
 	virtual RoboCompKinovaArm::TPose KinovaArm1_getCenterOfTool(RoboCompKinovaArm::ArmJoints referencedTo) = 0;
@@ -86,7 +91,6 @@ public:
 	virtual void KinovaArm1_moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds) = 0;
 	virtual void KinovaArm1_openGripper() = 0;
 	virtual void KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo) = 0;
-	virtual bool KinovaArm1_setGripperPos(float pos) = 0;
 
 	virtual RoboCompLidar3D::TData Lidar3D_getLidarData(std::string name, float start, float len, int decimationDegreeFactor) = 0;
 	virtual RoboCompLidar3D::TDataImage Lidar3D_getLidarDataArrayProyectedInImage(std::string name) = 0;

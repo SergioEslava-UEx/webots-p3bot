@@ -41,6 +41,7 @@
 #include <webots/Camera.hpp>
 #include <webots/Lidar.hpp>
 #include <webots/Accelerometer.hpp>
+#include <webots/RangeFinder.hpp>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
@@ -107,7 +108,6 @@ public:
 	void KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo);
 	bool KinovaArm_setGripperPos(float pos);
 
-
     // #######################
     // # KinovaArm_L interface #
     // #######################
@@ -142,6 +142,14 @@ public:
 	RoboCompLidar3D::TDataCategory Lidar3D_getLidarDataByCategory(RoboCompLidar3D::TCategories categories, Ice::Long timestamp);
 	RoboCompLidar3D::TData Lidar3D_getLidarDataProyectedInImage(std::string name);
 	RoboCompLidar3D::TData Lidar3D_getLidarDataWithThreshold2d(std::string name, float distance, int decimationDegreeFactor);
+
+	// ##############################
+	// # CameraRGBDSimple interface #
+	// ##############################
+	RoboCompCameraRGBDSimple::TRGBD CameraRGBDSimple_getAll(std::string camera);
+	RoboCompCameraRGBDSimple::TDepth CameraRGBDSimple_getDepth(std::string camera);
+	RoboCompCameraRGBDSimple::TImage CameraRGBDSimple_getImage(std::string camera);
+	RoboCompCameraRGBDSimple::TPoints CameraRGBDSimple_getPoints(std::string camera);
 
     // #####################
     // # JoystickAdapter interface #
@@ -201,6 +209,9 @@ private:
     webots::Camera* camera360_1;
     webots::Camera* camera360_2;
 
+	webots::Camera* zed;
+	webots::RangeFinder* zedRangeFinder;
+
     webots::Lidar* heliosLidar;
 
     webots::Accelerometer* accelerometer;
@@ -239,6 +250,8 @@ private:
 
     DoubleBuffer<RoboCompLidar3D::TData, RoboCompLidar3D::TData> double_buffer_helios;
 
+	RoboCompCameraRGBDSimple::TRGBD zedImage;
+
     /**
      * Receiving methods
      */
@@ -246,6 +259,7 @@ private:
     void receiving_robotSpeed(webots::Supervisor* _robot, double timestamp);
     void receiving_camera360Data(webots::Camera* _camera1, webots::Camera* _camera2, double timestamp);
     void receiving_lidarData(webots::Lidar* _lidar, DoubleBuffer<RoboCompLidar3D::TData, RoboCompLidar3D::TData>& lidar_doubleBuffer, FixedSizeDeque<RoboCompLidar3D::TData>& delay_queue, double timestamp);
+	void receiving_cameraRGBD(webots::Camera* _camera, webots::RangeFinder* _rangeFinder, RoboCompCameraRGBDSimple::TRGBD& _image);
     double generateNoise(double stddev);
 
     /**

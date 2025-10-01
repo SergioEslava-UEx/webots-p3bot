@@ -41,7 +41,6 @@ public:
 	void moveJointsWithSpeed(RoboCompKinovaArm::TJointSpeeds speeds, const Ice::Current&);
 	void openGripper(const Ice::Current&);
 	void setCenterOfTool(RoboCompKinovaArm::TPose pose, RoboCompKinovaArm::ArmJoints referencedTo, const Ice::Current&);
-	bool setGripperPos(float pos, const Ice::Current&);
 
 private:
 
@@ -58,7 +57,6 @@ private:
 	std::array<std::function<void(RoboCompKinovaArm::TJointSpeeds)>, 2> moveJointsWithSpeedHandlers;
 	std::array<std::function<void(void)>, 2> openGripperHandlers;
 	std::array<std::function<void(RoboCompKinovaArm::TPose, RoboCompKinovaArm::ArmJoints)>, 2> setCenterOfToolHandlers;
-	std::array<std::function<bool(float)>, 2> setGripperPosHandlers;
 
 };
 

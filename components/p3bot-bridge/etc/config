@@ -9,6 +9,7 @@ Endpoints.JoystickAdapterTopic = "tcp -p 0"
 Endpoints.JoystickAdapterPrefix = ""
 
 # Endpoints for implements interfaces
+Endpoints.CameraRGBDSimple = "tcp -p 10009"
 Endpoints.Lidar3D = "tcp -p 10008"
 Endpoints.Camera360RGB = "tcp -p 10007"
 Endpoints.KinovaArm1 = "tcp -p 10006"
