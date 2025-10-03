@@ -259,7 +259,7 @@ private:
     void receiving_robotSpeed(webots::Supervisor* _robot, double timestamp);
     void receiving_camera360Data(webots::Camera* _camera1, webots::Camera* _camera2, double timestamp);
     void receiving_lidarData(webots::Lidar* _lidar, DoubleBuffer<RoboCompLidar3D::TData, RoboCompLidar3D::TData>& lidar_doubleBuffer, FixedSizeDeque<RoboCompLidar3D::TData>& delay_queue, double timestamp);
-	void receiving_cameraRGBD(webots::Camera* _camera, webots::RangeFinder* _rangeFinder, RoboCompCameraRGBDSimple::TRGBD& _image);
+	void receiving_cameraRGBD(webots::Camera* _camera, webots::RangeFinder* _rangeFinder, RoboCompCameraRGBDSimple::TRGBD& _image, double timestamp);
     double generateNoise(double stddev);
 
     /**

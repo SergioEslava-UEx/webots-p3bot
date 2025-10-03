@@ -139,15 +139,99 @@ void SpecificWorker::compute()
     if(robot) receiving_robotSpeed(robot, now);
     if(camera360_1 && camera360_2) receiving_camera360Data(camera360_1, camera360_2, now);
     if(heliosLidar) receiving_lidarData(heliosLidar, double_buffer_helios,  helios_delay_queue, now);
-    if(zedRangeFinder && zed) receiving_cameraRGBD(zed, zedRangeFinder, zedImage);
+    if(zedRangeFinder && zed) receiving_cameraRGBD(zed, zedRangeFinder, zedImage, now);
 
     robot->step(this->getPeriod("Compute"));
     fps.print("FPS:");
 }
 
-void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera, webots::RangeFinder* _rangeFinder, RoboCompCameraRGBDSimple::TRGBD& _image)
+void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera, webots::RangeFinder* _rangeFinder, RoboCompCameraRGBDSimple::TRGBD& _image, double timestamp)
 {
+    RoboCompCameraRGBDSimple::TImage color;
+    RoboCompCameraRGBDSimple::TDepth depth;
+    RoboCompCameraRGBDSimple::TPoints points;
 
+    color.alivetime = depth.alivetime = points.alivetime = timestamp;
+    
+    color.period = depth.period = points.period = fps.get_period();
+
+    int width = _camera->getWidth();
+    int height = _camera->getHeight();
+
+    color.width = depth.width = width;
+    color.height = depth.height = height;
+
+    color.compressed = depth.compressed = points.compressed = false;
+
+    // Imagen RGB desde Webots (BGRA)
+    const unsigned char *webotsImageData = _camera->getImage();
+    cv::Mat colorMatBGRA(height, width, CV_8UC4, (void*)webotsImageData);
+
+    // Convertir a RGB
+    cv::Mat colorMatRGB;
+    cv::cvtColor(colorMatBGRA, colorMatRGB, cv::COLOR_BGRA2RGB);
+
+    // Copiar a vector
+    color.image.resize(colorMatRGB.total() * colorMatRGB.channels());
+    std::memcpy(color.image.data(), colorMatRGB.data, color.image.size());
+
+    // Calcular intrínsecas a partir del FOV
+    double fov = _rangeFinder->getFov(); // en radianes
+    double fx = width / (2.0 * tan(fov / 2.0));
+    double fy = fx;
+    double cx = width / 2.0;
+    double cy = height / 2.0;
+
+    // Imagen de profundidad
+    const float *depthImage = _rangeFinder->getRangeImage();
+    cv::Mat depthMat(height, width, CV_32FC1);
+
+    std::vector<RoboCompCameraRGBDSimple::Point3D> cloud;
+    cloud.reserve(width * height);
+
+    for (int v = 0; v < height; v++) {
+        for (int u = 0; u < width; u++) {
+            float d = _rangeFinder->rangeImageGetDepth(depthImage, width, u, v);
+            if (d == INFINITY || d <= 0.0f)
+                d = 0.0f; // poner 0 en vez de saltarse el píxel
+
+            // GUARDA EN EL ORDEN CORRECTO (fila=v, columna=u)
+            depthMat.at<float>(v, u) = d;
+
+            if (d > 0.0f) {
+                // Coordenadas en cámara
+                float X = (u - cx) * d / fx;
+                float Y = (v - cy) * d / fy;
+                float Z = d;
+                cloud.push_back({X, Y, Z});
+            }
+        }
+    }
+
+    double max_depth_meters = 50.0;
+
+    cv::Mat depth8u;
+    double minVal = 0.0;
+    double maxVal = max_depth_meters;  // configurable
+
+    depthMat.convertTo(depth8u, CV_8UC1, 255.0 / (maxVal - minVal),
+                    -minVal * 255.0 / (maxVal - minVal));
+
+    // Copiar a vector de bytes
+    depth.depth.resize(depth8u.total());
+    std::memcpy(depth.depth.data(), depth8u.data, depth.depth.size());
+
+    // Nube de puntos
+    points.points = cloud;
+
+    // cv::imshow("Color", colorMatRGB);
+    // cv::imshow("Depth (8-bit)", depth8u);
+    // cv::waitKey(1);
+
+    // Empaquetar salida
+    _image.image = color;
+    _image.depth = depth;
+    _image.points = points;
 }
 
 void SpecificWorker::emergency()
@@ -319,7 +403,7 @@ void SpecificWorker::receiving_lidarData(webots::Lidar* _lidar, DoubleBuffer<Rob
             //TODO rotacion del eje y con el M_PI, solucionar
             float horizontalAngle = M_PI - i * angleResolution - fov / 2;
 
-            float verticalAngle = M_PI + j * (verticalFov / verticalResolution) - verticalFov / 2;
+            float verticalAngle = M_PI + j * (verticalFov / verticalResolution) - verticalFov / 2; //down limit+, uper limit-, horizon line is PI
 
             //Calculate Cartesian co-ordinates and rectify axis positions
             Eigen::Vector3f lidar_point(
@@ -329,7 +413,8 @@ void SpecificWorker::receiving_lidarData(webots::Lidar* _lidar, DoubleBuffer<Rob
 
             if (not (std::isinf(lidar_point.x()) or std::isinf(lidar_point.y()) or std::isinf(lidar_point.z())))
             {
-                if (not (verticalAngle > 4.10152 or verticalAngle <2.87979)) //down limit+, uper limit-, horizon line is PI
+                // if (not (verticalAngle > 4.10152 or verticalAngle <2.87979)) //helios normal position
+                if (not (verticalAngle > 3.40339 or verticalAngle < 2.1816)) //helios flipped position
                 {
                     RoboCompLidar3D::TPoint point;
 
