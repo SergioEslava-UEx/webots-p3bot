@@ -145,14 +145,17 @@ void SpecificWorker::compute()
     fps.print("FPS:");
 }
 
-void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera, webots::RangeFinder* _rangeFinder, RoboCompCameraRGBDSimple::TRGBD& _image, double timestamp)
+void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera,
+                                          webots::RangeFinder* _rangeFinder,
+                                          RoboCompCameraRGBDSimple::TRGBD& _image,
+                                          double timestamp)
 {
+    // -------------------- Preparar contenedores --------------------
     RoboCompCameraRGBDSimple::TImage color;
     RoboCompCameraRGBDSimple::TDepth depth;
     RoboCompCameraRGBDSimple::TPoints points;
 
     color.alivetime = depth.alivetime = points.alivetime = timestamp;
-    
     color.period = depth.period = points.period = fps.get_period();
 
     int width = _camera->getWidth();
@@ -160,79 +163,91 @@ void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera, webots::Range
 
     color.width = depth.width = width;
     color.height = depth.height = height;
-
     color.compressed = depth.compressed = points.compressed = false;
 
-    // Imagen RGB desde Webots (BGRA)
+    // -------------------- Imagen RGB --------------------
     const unsigned char *webotsImageData = _camera->getImage();
     cv::Mat colorMatBGRA(height, width, CV_8UC4, (void*)webotsImageData);
 
-    // Convertir a RGB
     cv::Mat colorMatRGB;
     cv::cvtColor(colorMatBGRA, colorMatRGB, cv::COLOR_BGRA2RGB);
 
-    // Copiar a vector
     color.image.resize(colorMatRGB.total() * colorMatRGB.channels());
     std::memcpy(color.image.data(), colorMatRGB.data, color.image.size());
 
-    // Calcular intrínsecas a partir del FOV
-    double fov = _rangeFinder->getFov(); // en radianes
+    // -------------------- Intrínsecas --------------------
+    double fov = _rangeFinder->getFov(); // radianes
     double fx = width / (2.0 * tan(fov / 2.0));
     double fy = fx;
     double cx = width / 2.0;
     double cy = height / 2.0;
 
-    // Imagen de profundidad
-    const float *depthImage = _rangeFinder->getRangeImage();
+    // -------------------- Tablas precalculadas --------------------
+    static std::vector<float> xTable, yTable;
+    if (xTable.size() != (size_t)width || yTable.size() != (size_t)height)
+    {
+        xTable.resize(width);
+        yTable.resize(height);
+
+        for (int u = 0; u < width; u++)
+            xTable[u] = (u - cx) / fx;
+
+        for (int v = 0; v < height; v++)
+            yTable[v] = (v - cy) / fy;
+    }
+
+    // -------------------- Imagen de profundidad --------------------
+    const float* depthImage = _rangeFinder->getRangeImage();
     cv::Mat depthMat(height, width, CV_32FC1);
 
     std::vector<RoboCompCameraRGBDSimple::Point3D> cloud;
     cloud.reserve(width * height);
 
-    for (int v = 0; v < height; v++) {
-        for (int u = 0; u < width; u++) {
-            float d = _rangeFinder->rangeImageGetDepth(depthImage, width, u, v);
-            if (d == INFINITY || d <= 0.0f)
-                d = 0.0f; // poner 0 en vez de saltarse el píxel
+    // -------------------- Bucle paralelizado --------------------
+    #pragma omp parallel
+    {
+        std::vector<RoboCompCameraRGBDSimple::Point3D> localCloud;
+        localCloud.reserve(width * height / omp_get_num_threads());
 
-            // GUARDA EN EL ORDEN CORRECTO (fila=v, columna=u)
-            depthMat.at<float>(v, u) = d;
+        #pragma omp for collapse(2)
+        for (int v = 0; v < height; v++) {
+            for (int u = 0; u < width; u++) {
+                float d = depthImage[v * width + u];
+                if (d <= 0.0f || d == INFINITY) {
+                    depthMat.at<float>(v, u) = 0.0f;
+                    continue;
+                }
 
-            if (d > 0.0f) {
-                // Coordenadas en cámara
-                float X = (u - cx) * d / fx;
-                float Y = (v - cy) * d / fy;
+                depthMat.at<float>(v, u) = d;
+
+                float X = xTable[u] * d;
+                float Y = yTable[v] * d;
                 float Z = d;
-                cloud.push_back({X, Y, Z});
+
+                localCloud.push_back({X, Y, Z});
             }
         }
+
+        #pragma omp critical
+        cloud.insert(cloud.end(), localCloud.begin(), localCloud.end());
     }
 
+    // -------------------- Profundidad a 8 bits --------------------
     double max_depth_meters = 50.0;
-
     cv::Mat depth8u;
-    double minVal = 0.0;
-    double maxVal = max_depth_meters;  // configurable
+    depthMat.convertTo(depth8u, CV_8UC1, 255.0 / max_depth_meters);
 
-    depthMat.convertTo(depth8u, CV_8UC1, 255.0 / (maxVal - minVal),
-                    -minVal * 255.0 / (maxVal - minVal));
-
-    // Copiar a vector de bytes
     depth.depth.resize(depth8u.total());
     std::memcpy(depth.depth.data(), depth8u.data, depth.depth.size());
 
-    // Nube de puntos
-    points.points = cloud;
-
-    // cv::imshow("Color", colorMatRGB);
-    // cv::imshow("Depth (8-bit)", depth8u);
-    // cv::waitKey(1);
-
-    // Empaquetar salida
+    // -------------------- Salida --------------------
+    points.points = std::move(cloud);
     _image.image = color;
     _image.depth = depth;
     _image.points = points;
 }
+
+
 
 void SpecificWorker::emergency()
 {

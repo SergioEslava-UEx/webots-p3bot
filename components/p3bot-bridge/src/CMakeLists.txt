@@ -36,6 +36,6 @@ add_definitions(
 # Linking Webots libraries
 set(WEBOTS_HOME "/usr/local/webots")
 link_directories(${WEBOTS_HOME}/lib/controller)
-LIST(APPEND LIBS -L/usr/local/webots/lib/controller Controller CppController)
+LIST(APPEND LIBS -L/usr/local/webots/lib/controller Controller CppController OpenMP::OpenMP_CXX)
 include_directories(${WEBOTS_HOME}/include/controller/c ${WEBOTS_HOME}/include/controller/cpp)
 
