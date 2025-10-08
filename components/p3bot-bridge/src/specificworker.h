@@ -252,6 +252,7 @@ private:
 
     DoubleBuffer<RoboCompLidar3D::TData, RoboCompLidar3D::TData> double_buffer_helios;
 
+    DoubleBuffer<RoboCompCameraRGBDSimple::TRGBD, RoboCompCameraRGBDSimple::TRGBD> double_buffer_zed;
 	RoboCompCameraRGBDSimple::TRGBD zedImage;
 
     /**

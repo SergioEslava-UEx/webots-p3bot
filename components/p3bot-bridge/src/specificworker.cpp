@@ -128,7 +128,6 @@ void SpecificWorker::initialize()
     // Accelerometer initialization
     accelerometer = robot->getAccelerometer("accelerometer");
     if(accelerometer) accelerometer->enable(this->getPeriod("Compute"));
-
 }
 
 
@@ -150,101 +149,45 @@ void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera,
                                           RoboCompCameraRGBDSimple::TRGBD& _image,
                                           double timestamp)
 {
-    // -------------------- Preparar contenedores --------------------
-    RoboCompCameraRGBDSimple::TImage color;
-    RoboCompCameraRGBDSimple::TDepth depth;
-    RoboCompCameraRGBDSimple::TPoints points;
 
-    color.alivetime = depth.alivetime = points.alivetime = timestamp;
-    color.period = depth.period = points.period = fps.get_period();
+    RoboCompCameraRGBDSimple::TRGBD new_zed_image;
+
+    new_zed_image.image.alivetime = new_zed_image.depth.alivetime = new_zed_image.points.alivetime = timestamp;
+    new_zed_image.image.period = new_zed_image.depth.period = new_zed_image.points.period = fps.get_period();
 
     int width = _camera->getWidth();
     int height = _camera->getHeight();
 
-    color.width = depth.width = width;
-    color.height = depth.height = height;
-    color.compressed = depth.compressed = points.compressed = false;
+    new_zed_image.image.width = new_zed_image.depth.width = width;
+    new_zed_image.image.height = new_zed_image.depth.height = height;
+    new_zed_image.image.compressed = new_zed_image.depth.compressed = new_zed_image.points.compressed = false;
 
     // -------------------- Imagen RGB --------------------
     const unsigned char *webotsImageData = _camera->getImage();
-    cv::Mat colorMatBGRA(height, width, CV_8UC4, (void*)webotsImageData);
+    cv::Mat imageMatBGRA(height, width, CV_8UC4, (void*)webotsImageData);
 
-    cv::Mat colorMatRGB;
-    cv::cvtColor(colorMatBGRA, colorMatRGB, cv::COLOR_BGRA2RGB);
+    cv::Mat imageMatRGB;
+    cv::cvtColor(imageMatBGRA, imageMatRGB, cv::COLOR_BGRA2RGB);
 
-    color.image.resize(colorMatRGB.total() * colorMatRGB.channels());
-    std::memcpy(color.image.data(), colorMatRGB.data, color.image.size());
+    new_zed_image.image.image.resize(imageMatRGB.total() * imageMatRGB.channels());
+    std::memcpy(new_zed_image.image.image.data(), imageMatRGB.data, new_zed_image.image.image.size());
 
     // -------------------- Intrínsecas --------------------
     double fov = _rangeFinder->getFov(); // radianes
     double fx = width / (2.0 * tan(fov / 2.0));
     double fy = fx;
-    double cx = width / 2.0;
-    double cy = height / 2.0;
-
-    // -------------------- Tablas precalculadas --------------------
-    static std::vector<float> xTable, yTable;
-    if (xTable.size() != (size_t)width || yTable.size() != (size_t)height)
-    {
-        xTable.resize(width);
-        yTable.resize(height);
-
-        for (int u = 0; u < width; u++)
-            xTable[u] = (u - cx) / fx;
-
-        for (int v = 0; v < height; v++)
-            yTable[v] = (v - cy) / fy;
-    }
+    new_zed_image.depth.focalx = fx;
+    new_zed_image.depth.focaly = fy;
 
     // -------------------- Imagen de profundidad --------------------
     const float* depthImage = _rangeFinder->getRangeImage();
-    cv::Mat depthMat(height, width, CV_32FC1);
 
-    std::vector<RoboCompCameraRGBDSimple::Point3D> cloud;
-    cloud.reserve(width * height);
+    cv::Mat depthMat(height, width, CV_32FC1, (void*)depthImage);
 
-    // -------------------- Bucle paralelizado --------------------
-    #pragma omp parallel
-    {
-        std::vector<RoboCompCameraRGBDSimple::Point3D> localCloud;
-        localCloud.reserve(width * height / omp_get_num_threads());
+    new_zed_image.depth.depth.resize(width * height * sizeof(float));
+    std::memcpy(new_zed_image.depth.depth.data(), depthMat.data, new_zed_image.depth.depth.size());
 
-        #pragma omp for collapse(2)
-        for (int v = 0; v < height; v++) {
-            for (int u = 0; u < width; u++) {
-                float d = depthImage[v * width + u];
-                if (d <= 0.0f || d == INFINITY) {
-                    depthMat.at<float>(v, u) = 0.0f;
-                    continue;
-                }
-
-                depthMat.at<float>(v, u) = d;
-
-                float X = xTable[u] * d;
-                float Y = yTable[v] * d;
-                float Z = d;
-
-                localCloud.push_back({X, Y, Z});
-            }
-        }
-
-        #pragma omp critical
-        cloud.insert(cloud.end(), localCloud.begin(), localCloud.end());
-    }
-
-    // -------------------- Profundidad a 8 bits --------------------
-    double max_depth_meters = 50.0;
-    cv::Mat depth8u;
-    depthMat.convertTo(depth8u, CV_8UC1, 255.0 / max_depth_meters);
-
-    depth.depth.resize(depth8u.total());
-    std::memcpy(depth.depth.data(), depth8u.data, depth.depth.size());
-
-    // -------------------- Salida --------------------
-    points.points = std::move(cloud);
-    _image.image = color;
-    _image.depth = depth;
-    _image.points = points;
+    double_buffer_zed.put(std::move(new_zed_image));
 }
 
 
@@ -836,31 +779,22 @@ void SpecificWorker::printNotImplementedWarningMessage(const string functionName
 
 RoboCompCameraRGBDSimple::TRGBD SpecificWorker::CameraRGBDSimple_getAll(std::string camera)
 {
-	return zedImage;
+	return double_buffer_zed.get_idemp();
 }
 
 RoboCompCameraRGBDSimple::TDepth SpecificWorker::CameraRGBDSimple_getDepth(std::string camera)
 {
-	RoboCompCameraRGBDSimple::TDepth ret{};
-	//implementCODE
-
-	return ret;
+	return double_buffer_zed.get_idemp().depth;
 }
 
 RoboCompCameraRGBDSimple::TImage SpecificWorker::CameraRGBDSimple_getImage(std::string camera)
 {
-	RoboCompCameraRGBDSimple::TImage ret{};
-	//implementCODE
-
-	return ret;
+	return double_buffer_zed.get_idemp().image;
 }
 
 RoboCompCameraRGBDSimple::TPoints SpecificWorker::CameraRGBDSimple_getPoints(std::string camera)
 {
-	RoboCompCameraRGBDSimple::TPoints ret{};
-	//implementCODE
-
-	return ret;
+	return double_buffer_zed.get_idemp().points;
 }
 
 #pragma endregion CameraRGBDSimple
