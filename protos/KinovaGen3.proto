@@ -245,6 +245,66 @@ PROTO KinovaGen3 [
                                               translation 0.000000 -0.105930 -0.000175
                                               rotation -1.000000 -0.000000 0.000000 1.570800
                                               children [
+                                                Solid {
+                                                        translation 0 0 -0.09
+                                                        children [
+                                                          SliderJoint {
+                                                            jointParameters JointParameters {
+                                                              position 0.05
+                                                              axis 1 0 0
+                                                              minStop 0.1
+                                                              maxStop 0.05
+                                                            }
+                                                            device [
+                                                              PositionSensor {
+                                                              }
+                                                              LinearMotor {
+                                                              }
+                                                            ]
+                                                            endPoint Solid {
+                                                              translation 0.05 0 0
+                                                              children [
+                                                                Shape {
+                                                                  appearance USE base_link_material
+                                                                  geometry DEF basic_finger Box {
+                                                                    size 0.01 0.01 0.04
+                                                                  }
+                                                                }
+                                                              ]
+                                                              name "finger_right"
+                                                              boundingObject USE basic_finger
+                                                            }
+                                                          }
+                                                          SliderJoint {
+                                                            jointParameters JointParameters {
+                                                              position 0.05
+                                                              axis -1 0 0
+                                                              minStop 0.1
+                                                              maxStop 0.05
+                                                            }
+                                                            device [
+                                                              PositionSensor {
+                                                              }
+                                                              LinearMotor {
+                                                              }
+                                                            ]
+                                                            endPoint Solid {
+                                                              translation -0.05 0 0
+                                                              children [
+                                                                Shape {
+                                                                  appearance USE base_link_material
+                                                                  geometry DEF basic_finger Box {
+                                                                    size 0.01 0.01 0.04
+                                                                  }
+                                                                }
+                                                              ]
+                                                              name "finger_left"
+                                                              boundingObject USE basic_finger
+                                                            }
+                                                          }
+                                                        ]
+                                                        name "fingers_holder"
+                                                      }
                                                 Shape {
                                                   appearance DEF Bracelet_Link_material PBRAppearance {
                                                     baseColor 0.752940 0.752940 0.752940
