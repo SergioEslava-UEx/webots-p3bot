@@ -171,54 +171,6 @@ void SpecificWorker::compute()
     fps.print("FPS:");
 }
 
-void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera,
-                                          webots::RangeFinder* _rangeFinder,
-                                          RoboCompCameraRGBDSimple::TRGBD& _image,
-                                          double timestamp)
-{
-
-    RoboCompCameraRGBDSimple::TRGBD new_zed_image;
-
-    new_zed_image.image.alivetime = new_zed_image.depth.alivetime = new_zed_image.points.alivetime = timestamp;
-    new_zed_image.image.period = new_zed_image.depth.period = new_zed_image.points.period = fps.get_period();
-
-    int width = _camera->getWidth();
-    int height = _camera->getHeight();
-
-    new_zed_image.image.width = new_zed_image.depth.width = width;
-    new_zed_image.image.height = new_zed_image.depth.height = height;
-    new_zed_image.image.compressed = new_zed_image.depth.compressed = new_zed_image.points.compressed = false;
-
-    // -------------------- Imagen RGB --------------------
-    const unsigned char *webotsImageData = _camera->getImage();
-    cv::Mat imageMatBGRA(height, width, CV_8UC4, (void*)webotsImageData);
-
-    cv::Mat imageMatRGB;
-    cv::cvtColor(imageMatBGRA, imageMatRGB, cv::COLOR_BGRA2RGB);
-
-    new_zed_image.image.image.resize(imageMatRGB.total() * imageMatRGB.channels());
-    std::memcpy(new_zed_image.image.image.data(), imageMatRGB.data, new_zed_image.image.image.size());
-
-    // -------------------- Intrínsecas --------------------
-    double fov = _rangeFinder->getFov(); // radianes
-    double fx = width / (2.0 * tan(fov / 2.0));
-    double fy = fx;
-    new_zed_image.depth.focalx = fx;
-    new_zed_image.depth.focaly = fy;
-
-    // -------------------- Imagen de profundidad --------------------
-    const float* depthImage = _rangeFinder->getRangeImage();
-
-    cv::Mat depthMat(height, width, CV_32FC1, (void*)depthImage);
-
-    new_zed_image.depth.depth.resize(width * height * sizeof(float));
-    std::memcpy(new_zed_image.depth.depth.data(), depthMat.data, new_zed_image.depth.depth.size());
-
-    double_buffer_zed.put(std::move(new_zed_image));
-}
-
-
-
 void SpecificWorker::emergency()
 {
     std::cout << "Emergency worker" << std::endl;
@@ -433,6 +385,52 @@ double SpecificWorker::generateNoise(double stddev)
     std::mt19937 gen(rd()); // Generador de números aleatorios basado en Mersenne Twister
     std::normal_distribution<> d(0, stddev); // Distribución normal con media 0 y desviación estándar stddev
     return d(gen);
+}
+
+void SpecificWorker::receiving_cameraRGBD(webots::Camera* _camera,
+                                          webots::RangeFinder* _rangeFinder,
+                                          RoboCompCameraRGBDSimple::TRGBD& _image,
+                                          double timestamp)
+{
+
+    RoboCompCameraRGBDSimple::TRGBD new_zed_image;
+
+    new_zed_image.image.alivetime = new_zed_image.depth.alivetime = new_zed_image.points.alivetime = timestamp;
+    new_zed_image.image.period = new_zed_image.depth.period = new_zed_image.points.period = fps.get_period();
+
+    int width = _camera->getWidth();
+    int height = _camera->getHeight();
+
+    new_zed_image.image.width = new_zed_image.depth.width = width;
+    new_zed_image.image.height = new_zed_image.depth.height = height;
+    new_zed_image.image.compressed = new_zed_image.depth.compressed = new_zed_image.points.compressed = false;
+
+    // -------------------- Imagen RGB --------------------
+    const unsigned char *webotsImageData = _camera->getImage();
+    cv::Mat imageMatBGRA(height, width, CV_8UC4, (void*)webotsImageData);
+
+    cv::Mat imageMatRGB;
+    cv::cvtColor(imageMatBGRA, imageMatRGB, cv::COLOR_BGRA2RGB);
+
+    new_zed_image.image.image.resize(imageMatRGB.total() * imageMatRGB.channels());
+    std::memcpy(new_zed_image.image.image.data(), imageMatRGB.data, new_zed_image.image.image.size());
+
+    // -------------------- Intrínsecas --------------------
+    double fov = _rangeFinder->getFov(); // radianes
+    double fx = width / (2.0 * tan(fov / 2.0));
+    double fy = fx;
+    new_zed_image.depth.focalx = fx;
+    new_zed_image.depth.focaly = fy;
+
+    // -------------------- Imagen de profundidad --------------------
+    const float* depthImage = _rangeFinder->getRangeImage();
+
+    cv::Mat depthMat(height, width, CV_32FC1, (void*)depthImage);
+
+    new_zed_image.depth.depth.resize(width * height * sizeof(float));
+    std::memcpy(new_zed_image.depth.depth.data(), depthMat.data, new_zed_image.depth.depth.size());
+
+    double_buffer_zed.put(std::move(new_zed_image));
 }
 
 #pragma region OMNIROBOT_INTERFACE
