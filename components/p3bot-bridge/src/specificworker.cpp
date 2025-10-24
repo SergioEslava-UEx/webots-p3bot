@@ -167,13 +167,6 @@ void SpecificWorker::compute()
     if(heliosLidar) receiving_lidarData(heliosLidar, double_buffer_helios,  helios_delay_queue, now);
     if(zedRangeFinder && zed) receiving_cameraRGBD(zed, zedRangeFinder, zedImage, now);
 
-
-
-    float valor = (std::sin(now*0.001) + 1.0f) * 0.5f;  // oscila entre 0 y 1
-    KinovaArm1_setGripperPos(valor);
-    KinovaArm_setGripperPos(valor);
-
-
     robot->step(this->getPeriod("Compute"));
     fps.print("FPS:");
 }
