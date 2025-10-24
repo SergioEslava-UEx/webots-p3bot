@@ -128,6 +128,33 @@ void SpecificWorker::initialize()
     // Accelerometer initialization
     accelerometer = robot->getAccelerometer("accelerometer");
     if(accelerometer) accelerometer->enable(this->getPeriod("Compute"));
+
+    // Grasp initializacion
+    armsMinMaxPosition.first = robot->getFromDef("KINOVA_ARM_L")->getField("armsMinPosition")->getSFFloat();
+    armsMinMaxPosition.second = robot->getFromDef("KINOVA_ARM_L")->getField("armsMaxPosition")->getSFFloat();
+
+    left_hand.first = robot->getMotor("Left_Hand_LinearMotor_Right");
+    left_hand.second = robot->getMotor("Left_Hand_LinearMotor_Left");
+    /*
+    if (left_hand.first && left_hand.second) {
+        left_hand.first->setPosition(INFINITY); // Speed Mode
+        left_hand.first->setVelocity(0);
+        left_hand.second->setPosition(INFINITY);
+        left_hand.second->setVelocity(0);
+    }
+    */
+
+    right_hand.first = robot->getMotor("Right_Hand_LinearMotor_Right");
+    right_hand.second = robot->getMotor("Right_Hand_LinearMotor_Left");
+    /*
+    if (right_hand.first && right_hand.second) {
+        right_hand.first->setPosition(INFINITY); // Speed Mode
+        right_hand.first->setVelocity(0);
+        right_hand.second->setPosition(INFINITY);
+        right_hand.second->setVelocity(0);
+    }
+    */
+
 }
 
 
@@ -139,6 +166,13 @@ void SpecificWorker::compute()
     if(camera360_1 && camera360_2) receiving_camera360Data(camera360_1, camera360_2, now);
     if(heliosLidar) receiving_lidarData(heliosLidar, double_buffer_helios,  helios_delay_queue, now);
     if(zedRangeFinder && zed) receiving_cameraRGBD(zed, zedRangeFinder, zedImage, now);
+
+
+
+    float valor = (std::sin(now*0.001) + 1.0f) * 0.5f;  // oscila entre 0 y 1
+    KinovaArm1_setGripperPos(valor);
+    KinovaArm_setGripperPos(valor);
+
 
     robot->step(this->getPeriod("Compute"));
     fps.print("FPS:");
@@ -532,10 +566,14 @@ void SpecificWorker::KinovaArm_setCenterOfTool(RoboCompKinovaArm::TPose pose, Ro
 
 bool SpecificWorker::KinovaArm_setGripperPos(float pos)
 {
-	bool ret{};
-	//implementCODE
+    pos = std::clamp(pos, 0.0f, 1.0f);
 
-	return ret;
+    float target = armsMinMaxPosition.first + pos * (armsMinMaxPosition.second - armsMinMaxPosition.first);     // Convertimos de [0,1] a [minPosition,maxPosition]
+
+    right_hand.first->setPosition(target);
+    right_hand.second->setPosition(target);
+
+    return true;
 }
 
 #pragma endregion KINOVA_ARM_R_INTERFACE
@@ -603,10 +641,14 @@ void SpecificWorker::KinovaArm1_setCenterOfTool(RoboCompKinovaArm::TPose pose, R
 
 bool SpecificWorker::KinovaArm1_setGripperPos(float pos)
 {
-	bool ret{};
-	//implementCODE
+    pos = std::clamp(pos, 0.0f, 1.0f);
 
-	return ret;
+    float target = armsMinMaxPosition.first + pos * (armsMinMaxPosition.second - armsMinMaxPosition.first);     // Convertimos de [0,1] a [minPosition,maxPosition]
+    cout << target << endl;
+    left_hand.first->setPosition(target);
+    left_hand.second->setPosition(target);
+
+    return true;
 }
 
 #pragma endregion KINOVA_ARM_L_INTERFACE
@@ -694,9 +736,7 @@ void SpecificWorker::moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &join
 {
     constexpr size_t joint_limit = 7; // Asumiendo que 7 es el máximo de articulaciones
     const size_t loop_limit = std::min(jointSpeeds.size(), joint_limit);
-    
-    auto t1 = std::chrono::high_resolution_clock::now();
-    
+
     #pragma omp simd
     for (size_t i = 0; i < loop_limit; ++i)
     {
@@ -714,10 +754,6 @@ void SpecificWorker::moveBothArmsWithSpeed(const RoboCompKinovaArm::Speeds &join
         }
     }
     
-    auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(
-               std::chrono::high_resolution_clock::now() - t1).count();
-    
-    std::cout << "set " << diff << " ms" << std::endl << std::flush;
 }
 
 RoboCompKinovaArm::TJoints SpecificWorker::getJoints(std::vector<webots::PositionSensor *> &armSensors, 

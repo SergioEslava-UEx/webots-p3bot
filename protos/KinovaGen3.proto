@@ -11,14 +11,8 @@ PROTO KinovaGen3 [
   field  SFString    name            "KinovaGen3"  # Is `Robot.name`.
   field  SFBool      invertWrist     FALSE
   field  SFString    prefix          "Right_"
-  field  SFString    LINKS           "--------------------"
-  field  SFFloat     position_0_link  0
-  field  SFFloat     position_1_link  0
-  field  SFFloat     position_2_link  0
-  field  SFFloat     position_3_link  0
-  field  SFFloat     position_4_link  0
-  field  SFFloat     position_5_link  0
-  field  SFFloat     position_6_link  0
+  field  SFFloat     armsMinPosition -0.032
+  field  SFFloat     armsMaxPosition 0.01
 ]
 {
   Solid {
@@ -37,7 +31,6 @@ PROTO KinovaGen3 [
       }
       HingeJoint {
         jointParameters HingeJointParameters {
-          position IS position_0_link
           axis -0.000000 0.000007 -1.000000
           anchor 0.000000 0.000000 0.156430
         }
@@ -67,7 +60,6 @@ PROTO KinovaGen3 [
             }
             HingeJoint {
               jointParameters HingeJointParameters {
-                position IS position_1_link
                 axis -0.000000 -1.000000 -0.000004
                 anchor 0.000000 0.005375 -0.128380
               }
@@ -99,7 +91,6 @@ PROTO KinovaGen3 [
                   }
                   HingeJoint {
                     jointParameters HingeJointParameters {
-                      position IS position_2_link
                       axis 0.000000 1.000000 -0.000004
                       anchor 0.000000 -0.210380 -0.006375
                     }
@@ -129,7 +120,6 @@ PROTO KinovaGen3 [
                         }
                         HingeJoint {
                           jointParameters HingeJointParameters {
-                            position IS position_3_link
                             axis -0.000000 -1.000000 -0.000004
                             anchor 0.000000 0.006375 -0.210380
                           }
@@ -161,7 +151,6 @@ PROTO KinovaGen3 [
                               }
                               HingeJoint {
                                 jointParameters HingeJointParameters {
-                                  position IS position_4_link
                                   axis 0.000000 1.000000 -0.000004
                                   anchor 0.000000 -0.208430 -0.006375
                                 }
@@ -195,7 +184,6 @@ PROTO KinovaGen3 [
                                     }
                                     HingeJoint {
                                       jointParameters HingeJointParameters {
-                                        position IS position_5_link
                                         axis -0.000000 -1.000000 -0.000004
                                         anchor 0.000000 0.000175 -0.105930
                                       }
@@ -227,7 +215,6 @@ PROTO KinovaGen3 [
                                           }
                                           HingeJoint {
                                             jointParameters HingeJointParameters {
-                                              position IS position_6_link
                                               axis -0.000000 1.000000 -0.000004
                                               anchor 0.000000 -0.105930 -0.000175
                                             }
@@ -250,15 +237,16 @@ PROTO KinovaGen3 [
                                                         children [
                                                           SliderJoint {
                                                             jointParameters JointParameters {
-                                                              position 0.05
+                                                              position 0.011
                                                               axis 1 0 0
-                                                              minStop 0.1
-                                                              maxStop 0.05
+                                                              minStop IS armsMinPosition
+                                                              maxStop IS armsMaxPosition
                                                             }
                                                             device [
                                                               PositionSensor {
                                                               }
                                                               LinearMotor {
+                                                                name %<= '"' + fields.prefix.value + "Hand_LinearMotor_Right" + '"'; >%
                                                               }
                                                             ]
                                                             endPoint Solid {
@@ -271,21 +259,22 @@ PROTO KinovaGen3 [
                                                                   }
                                                                 }
                                                               ]
-                                                              name "finger_right"
+                                                              name %<= '"' + fields.prefix.value + "Hand_Finger_Right" + '"'; >%
                                                               boundingObject USE basic_finger
                                                             }
                                                           }
                                                           SliderJoint {
                                                             jointParameters JointParameters {
-                                                              position 0.05
+                                                              position 0.011
                                                               axis -1 0 0
-                                                              minStop 0.1
-                                                              maxStop 0.05
+                                                              minStop IS armsMinPosition
+                                                              maxStop IS armsMaxPosition
                                                             }
                                                             device [
                                                               PositionSensor {
                                                               }
                                                               LinearMotor {
+                                                                name %<= '"' + fields.prefix.value + "Hand_LinearMotor_Left" + '"'; >%
                                                               }
                                                             ]
                                                             endPoint Solid {
@@ -298,7 +287,7 @@ PROTO KinovaGen3 [
                                                                   }
                                                                 }
                                                               ]
-                                                              name "finger_left"
+                                                              name %<= '"' + fields.prefix.value + "Hand_Finger_Left" + '"'; >%
                                                               boundingObject USE basic_finger
                                                             }
                                                           }

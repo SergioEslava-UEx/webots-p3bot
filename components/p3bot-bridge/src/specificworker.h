@@ -42,7 +42,7 @@
 #include <webots/Lidar.hpp>
 #include <webots/Accelerometer.hpp>
 #include <webots/RangeFinder.hpp>
-
+#include <webots/Device.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 
@@ -202,7 +202,7 @@ private:
     webots::Motor* motors[4];
     webots::PositionSensor* positionSensors[4];
 
-    std::vector<webots::Motor*> kinovaArmRMotors;
+	std::vector<webots::Motor*> kinovaArmRMotors;
     std::vector<webots::PositionSensor*> kinovaArmRSensors;
 
     std::vector<webots::Motor*> kinovaArmLMotors;
@@ -218,11 +218,12 @@ private:
 
     webots::Accelerometer* accelerometer;
 
+	std::pair<webots::Motor*, webots::Motor*> left_hand;
+	std::pair<webots::Motor*, webots::Motor*> right_hand;
 
     /**
      * Other variables
      */
-
     const double SumLxLyOverRadius = (LX + LY);
     Eigen::Matrix<double, 4, 3> wheelsMatrix;
 
@@ -234,6 +235,8 @@ private:
         bool do_joystick = true;
     };
     PARAMS pars;
+
+	std::pair<float, float> armsMinMaxPosition;
 
     // Exact names for actuators and sensors of KinovaGen3 in Webots
     std::vector<std::string> kinovaMotorNames = {

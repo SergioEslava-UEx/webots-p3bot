@@ -1,4 +1,4 @@
-#VRML_SIM R2023b utf8
+#VRML_SIM R2025a utf8
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
@@ -7,6 +7,7 @@ EXTERNPROTO "../protos/P3Bot.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/tables/protos/Desk.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Parquetry.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/kitchen/utensils/protos/Glass.proto"
+EXTERNPROTO "../protos/KinovaGen3.proto"
 
 WorldInfo {
   info [
@@ -40,8 +41,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.28768831934691663 -0.3866156548160218 -0.8762212998795025 5.084106085700926
-  position -3.437566586012657 -6.1997302636404505 5.182961257302975
+  orientation 0.19044038781304057 -0.9210744557227462 -0.33963849267223173 5.81332058985342
+  position -1.7839411675345096 -0.24796405067268537 0.9670804904523459
 }
 TexturedBackground {
 }
@@ -55,10 +56,16 @@ RectangleArena {
   wallHeight 2
 }
 Glass {
-  translation 2 0 0.75
+  hidden linearVelocity_0 3.820480421357124e-18 4.6969069123877727e-17 -6.220918682437631e-11
+  hidden angularVelocity_0 -1.2330471693278443e-15 -9.484978225598803e-17 1.3910823566568491e-16
+  translation 2 1.578913869862417e-17 0.7089833230039798
+  rotation 0.16774248693285096 0.9858308453348712 4.9637844289501e-05 1.931572984941838e-15
 }
 Glass {
-  translation -2 0 0.75
+  hidden linearVelocity_0 -1.3178976985152989e-17 -1.4425044224576027e-17 -6.220916592731734e-11
+  hidden angularVelocity_0 4.742489112799413e-16 -5.110533926975133e-16 -1.8222646347397363e-16
+  translation -2 -3.5213833602723065e-18 0.7089833230039797
+  rotation 0.6525163186714686 -0.23867015039414155 -0.7192072115727651 5.128301350078649e-16
   name "glass(1)"
 }
 Desk {
@@ -72,6 +79,295 @@ Desk {
   name "Table2"
 }
 P3Bot {
-  translation -0.0034821724659998047 -0.020394088415209507 0.08391744411836762
-  rotation -3.199495826542243e-05 6.818374036174765e-05 -0.9999999971636503 1.5697619413738833
+  hidden linearVelocity_0 1.260508917006181e-06 2.0510809790738356e-05 -1.2469289336064903e-06
+  hidden angularVelocity_0 -7.816748415086341e-05 4.87622674064655e-06 3.924539870675081e-07
+  hidden position_1_0 4.437484282247332e-05
+  hidden rotation_2 0.9999999997538592 -2.2187421409443158e-05 -7.381300031278606e-11 3.141599999999998
+  hidden position_2_0 -6.928171545564631e-08
+  hidden linearVelocity_2 4.698455792348189e-06 7.359969301500912e-05 2.9646609134178506e-07
+  hidden angularVelocity_2 0.00012269509085464838 5.226439471205318e-06 9.436702795511727e-05
+  hidden rotation_3 0.999999999999999 3.464086904823537e-08 -3.4640719164625266e-08 1.570800000000001
+  hidden position_3_0 2.0432625195158173e-05
+  hidden linearVelocity_3 4.252433776532783e-06 5.6585858270556826e-05 9.697005023883146e-07
+  hidden angularVelocity_3 5.127803210730074e-05 5.3723622727576e-06 0.0002463328133369593
+  hidden rotation_4 -0.9999999998956276 1.0216315935494233e-05 1.0216271731686213e-05 1.5708000001043725
+  hidden position_4_0 -2.0200491225611054e-08
+  hidden linearVelocity_4 3.878916566888093e-06 8.35760437449613e-06 2.1123891142930925e-06
+  hidden angularVelocity_4 0.00014379151916829136 5.531943829076379e-06 0.00028956609461049484
+  hidden rotation_5 1 1.0100248913501595e-08 -1.0100205211891276e-08 1.5707999999999998
+  hidden position_5_0 3.839037841595656e-06
+  hidden linearVelocity_5 3.4355609840126412e-06 -2.1713338225552356e-05 2.8569280390547694e-06
+  hidden angularVelocity_5 0.00012219017187513467 5.57561650082026e-06 0.00033552719300717373
+  hidden rotation_6 -0.9999999999963154 1.919519548079694e-06 1.919511242730278e-06 1.5708000000036844
+  hidden position_6_0 -1.7638869176458474e-09
+  hidden linearVelocity_6 3.162396351814009e-06 -7.567706757724197e-05 3.861738916286378e-06
+  hidden angularVelocity_6 0.00013958322739643993 5.60552654972967e-06 0.0003436455557352391
+  hidden rotation_7 1 8.819437470364524e-10 -8.819399310549913e-10 1.5707999999999998
+  hidden position_7_0 -2.509679356737754e-07
+  hidden linearVelocity_7 2.9077843119534566e-06 -9.25481234544832e-05 4.243079836607324e-06
+  hidden angularVelocity_7 0.00013661064921061014 5.611523971591692e-06 0.00034996870831805805
+  hidden rotation_8 -0.9999999999999842 -1.2548400884424938e-07 -1.254834659018549e-07 1.5708000000000155
+  hidden linearVelocity_8 2.742023931299903e-06 -0.00012145502598329686 4.7744692970421895e-06
+  hidden angularVelocity_8 0.0001354660845120786 5.609647131632821e-06 0.00034942711714423043
+  hidden position_9_0 -0.0048795901238918304
+  hidden position_9_1 -0.0048795901238918304
+  hidden translation_10 0.034120409876108176 0 0
+  hidden translation_11 -0.034120409876108176 0 0
+  hidden position_12_0 2.0553737475865292e-08
+  hidden rotation_13 1 -1.0276868737946801e-08 -3.418903465165087e-14 3.1416
+  hidden position_13_0 -7.139573391047778e-08
+  hidden linearVelocity_13 4.623044728036597e-06 7.731688607399649e-05 -2.149387078136188e-06
+  hidden angularVelocity_13 0.00012785839641319769 4.945359526205256e-06 -9.588762607059813e-05
+  hidden rotation_14 0.9999999999999987 3.569787862107755e-08 -3.569772416401116e-08 1.5708000000000013
+  hidden position_14_0 -2.0843945170142307e-05
+  hidden linearVelocity_14 4.466953001787815e-06 5.1098637243279965e-05 -2.8548654330992746e-06
+  hidden angularVelocity_14 5.4446379045307606e-05 4.637364860483019e-06 -0.0002521601898607469
+  hidden rotation_15 -0.9999999998913828 -1.0421975990150873e-05 -1.04219308964959e-05 1.5708000001086173
+  hidden position_15_0 -2.094528077641752e-08
+  hidden linearVelocity_15 3.975713530433029e-06 7.567163585980825e-06 -3.774639350965243e-06
+  hidden angularVelocity_15 0.00014883646400293325 4.67109418741792e-06 -0.0002962149250290524
+  hidden rotation_16 1 1.0472643810601125e-08 -1.04725984977176e-08 1.5707999999999998
+  hidden position_16_0 -3.7693626158526935e-06
+  hidden linearVelocity_16 3.790451199089838e-06 -3.760971340214305e-05 -4.518378758872263e-06
+  hidden angularVelocity_16 0.00012666059743172975 4.57868498436987e-06 -0.0003434155026560724
+  hidden rotation_17 -0.9999999999964481 -1.8846819238237547e-06 -1.8846737692092669e-06 1.570800000003552
+  hidden position_17_0 -1.8730062823722517e-09
+  hidden linearVelocity_17 3.338942798707538e-06 -8.293895861888526e-05 -5.293932431172156e-06
+  hidden angularVelocity_17 0.00014374240533427069 4.584928421981166e-06 -0.00035137604404710963
+  hidden rotation_18 1 9.365034472295234e-10 -9.364993951797543e-10 1.5708
+  hidden position_18_0 1.4437330386053071e-10
+  hidden linearVelocity_18 3.2713257214413486e-06 -0.00011087937912512342 -5.683245986516322e-06
+  hidden angularVelocity_18 0.00014074539455131296 4.572461549364408e-06 -0.0003577547311324114
+  hidden rotation_19 -1 1.4437335104080375e-10 1.4437272636828156e-10 1.5708
+  hidden linearVelocity_19 3.1086097487302855e-06 -0.0001287637605974677 -5.9765995408365536e-06
+  hidden angularVelocity_19 0.00013994747427437132 4.572132507798791e-06 -0.0003573759905069998
+  hidden position_20_0 -0.0048795901238918304
+  hidden position_20_1 -0.0048795901238918304
+  hidden translation_21 0.034120409876108176 0 0
+  hidden translation_22 -0.034120409876108176 0 0
+  hidden linearVelocity_29 5.091982457366931e-07 6.591061247734625e-06 9.761725671670939e-06
+  hidden angularVelocity_29 -7.818478131052405e-05 4.871693774643084e-06 3.9228088330677145e-07
+  hidden linearVelocity_30 2.8918334265410356e-07 6.6753651941744475e-06 7.429593439132288e-06
+  hidden angularVelocity_30 -7.81932474752297e-05 4.889316979582349e-06 3.92279698444075e-07
+  hidden linearVelocity_31 2.7122847163375316e-07 6.538147981554901e-06 -9.397855069687453e-06
+  hidden angularVelocity_31 -7.818066276363762e-05 4.882758803263533e-06 3.9228162770434664e-07
+  hidden linearVelocity_32 5.246298787358251e-07 6.641958262887881e-06 -1.1729987313020852e-05
+  hidden angularVelocity_32 -7.818724655399185e-05 4.862490867263828e-06 3.922800125074361e-07
+  translation -0.0034820365586052415 -0.020394730270428933 -0.006748618632205328
+  rotation -0.0006586365105547184 -0.0007731376928559445 -0.9999994842278944 1.5697625298180122
+  arms [
+    DEF KINOVA_ARM_R KinovaGen3 {
+      translation 0 -0.0517612 1.04883
+      rotation 1 0 0 2.01001
+      name "kinova_arm_r"
+      armsMinPosition -0.032
+      armsMaxPosition 0.035
+    }
+    DEF KINOVA_ARM_L KinovaGen3 {
+      translation 0.002 0.055 1.052
+      rotation 1 0 0 -2.0100053071795863
+      name "kinova_arm_l"
+      prefix "Left_"
+      armsMinPosition -0.032
+      armsMaxPosition 0.01
+    }
+  ]
+  wheels [
+    DEF WHEEL1 HingeJoint {
+      jointParameters HingeJointParameters {
+        position -1.5035052089234016e-08
+        axis 0 1 0
+        anchor 0.125 -0.24 0.08
+      }
+      device [
+        RotationalMotor {
+          name "wheel1"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel1sensor"
+        }
+      ]
+      endPoint Solid {
+        translation 0.125 -0.24 0.08
+        rotation 0 1 0 0
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "../protos/p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel1"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          rotation 1 0 0 1.5708
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL2 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 1.4868508735529376e-08
+        axis 0 -1 0
+        anchor 0.125 0.24 0.08
+      }
+      device [
+        RotationalMotor {
+          name "wheel2"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel2sensor"
+        }
+      ]
+      endPoint Solid {
+        translation 0.125 0.24 0.08
+        rotation -7.4342543677646894e-09 1.6010979186404842e-11 1 3.1459
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "../protos/p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel2"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Pose {
+          rotation 1 0 0 1.5708
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL3 HingeJoint {
+      jointParameters HingeJointParameters {
+        position 4.023246569027001e-09
+        axis 0 1 0
+        anchor -0.125 -0.24 0.08
+      }
+      device [
+        RotationalMotor {
+          name "wheel3"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel3sensor"
+        }
+      ]
+      endPoint Solid {
+        translation -0.125 -0.24 0.08
+        rotation 0 1 0 0
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "../protos/p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel3"
+        contactMaterial "ExteriorWheelMat"
+        boundingObject Pose {
+          rotation 1 0 0 1.5708
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+    DEF WHEEL4 HingeJoint {
+      jointParameters HingeJointParameters {
+        position -3.810861954844389e-09
+        axis 0 -1 0
+        anchor -0.125 0.24 0.08
+      }
+      device [
+        RotationalMotor {
+          name "wheel4"
+          maxVelocity 30
+        }
+        PositionSensor {
+          name "wheel4sensor"
+        }
+      ]
+      endPoint Solid {
+        translation -0.125 0.24 0.08
+        rotation 1.905430977422195e-09 -4.103681984964258e-12 1 3.1459
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.75 0.75 0.75
+              roughness 0.3
+            }
+            geometry Mesh {
+              url [
+                "../protos/p3bot_meshes/omnidirectional_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "wheel4"
+        contactMaterial "InteriorWheelMat"
+        boundingObject Pose {
+          rotation 1 0 0 1.5708
+          children [
+            Cylinder {
+              height 0.04
+              radius 0.08
+              subdivision 24
+            }
+          ]
+        }
+        physics Physics {
+          density -1
+          mass 0.4
+        }
+      }
+    }
+  ]
 }
